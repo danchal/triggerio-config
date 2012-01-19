@@ -3,9 +3,10 @@
  * and open the template in the editor.
  */
 
+import Base.GlobalInput;
 import Midi.Common;
-import Midi.Device;
-import Midi.Input;
+import Midi.DeviceMidi;
+import Midi.GlobalInputMidi;
 import java.util.logging.Level;
 import javax.swing.table.AbstractTableModel;
 
@@ -19,7 +20,7 @@ public class TableModelTriggerInput extends AbstractTableModel{
     private Object[][] data;
 
     public TableModelTriggerInput() {
-        data        = new Object[Device.COUNTINPUT][this.columnNames.length];
+        data        = new Object[DeviceMidi.COUNTINPUT][this.columnNames.length];
     }
 
     public int getRowCount() {
@@ -71,44 +72,44 @@ public class TableModelTriggerInput extends AbstractTableModel{
         if(col == 6 && row%2 == 0 && row != 20){
             data[row+1][col] = value;
             fireTableCellUpdated(row+1, col);
-        }        
+        }
     }
 
-    public Input getTriggerInput(int inputNumber){
+    public GlobalInputMidi getTriggerInput(int inputNumber){
         Common.logger.finest(String.valueOf(inputNumber));
 
-        return new Input(
+        return new GlobalInputMidi(
                 inputNumber,
                 data[inputNumber][0].toString(),
-                Common.getKey(data[inputNumber][1],Input.lovGain),
-                Common.getKey(data[inputNumber][2],Input.lovVelocityCurve),
-                Common.getKey(data[inputNumber][3],Input.lovThreshold),
-                Common.getKey(data[inputNumber][4],Input.lovXTalk),
-                Common.getKey(data[inputNumber][5],Input.lovRetrigger),
-                Common.getKey(data[inputNumber][6],Input.lovTriggerType));
+                Common.getKey(data[inputNumber][1],GlobalInputMidi.lovGain),
+                Common.getKey(data[inputNumber][2],GlobalInputMidi.lovVelocity),
+                Common.getKey(data[inputNumber][3],GlobalInputMidi.lovThreshold),
+                Common.getKey(data[inputNumber][4],GlobalInputMidi.lovXTalk),
+                Common.getKey(data[inputNumber][5],GlobalInputMidi.lovRetrigger),
+                Common.getKey(data[inputNumber][6],GlobalInputMidi.lovType));
     }
-    
-    public void load(Input[] triggerInputs){
-        for(Input triggerInput : triggerInputs){
+
+    public void load(GlobalInput[] triggerInputs){
+        for(GlobalInput triggerInput : triggerInputs){
             Common.logger.log(Level.FINEST,"Inputnumber = <{0}" + ">" + ", name = <{1}"
                         + ">" + ", gain = <{2}" + ">"
                         + ", velo = <{3}" + ">" + ", threshold = <{4}"
                         + ">" + ", xtalk = <{5}" + ">"
                         + ", retrigger = <{6}" + ">" + ", trigger type = <{7}>", new Object[]{triggerInput.getTriggerInputNumber(), triggerInput.getTriggerInputName(), triggerInput.getGain(), triggerInput.getVelocityCurve(), triggerInput.getThreshold(), triggerInput.getXTalk(), triggerInput.getRetrigger(), triggerInput.getTriggerType()});
             data[triggerInput.getTriggerInputNumber()][0] = triggerInput.getTriggerInputName();
-            data[triggerInput.getTriggerInputNumber()][1] = Input.lovGain.get(triggerInput.getGain());
-            data[triggerInput.getTriggerInputNumber()][2] = Input.lovVelocityCurve.get(triggerInput.getVelocityCurve());
-            data[triggerInput.getTriggerInputNumber()][3] = Input.lovThreshold.get(triggerInput.getThreshold());
-            data[triggerInput.getTriggerInputNumber()][4] = Input.lovXTalk.get(triggerInput.getXTalk());
-            data[triggerInput.getTriggerInputNumber()][5] = Input.lovRetrigger.get(triggerInput.getRetrigger());
-            data[triggerInput.getTriggerInputNumber()][6] = Input.lovTriggerType.get(triggerInput.getTriggerType());
+            data[triggerInput.getTriggerInputNumber()][1] = GlobalInputMidi.lovGain.get(triggerInput.getGain());
+            data[triggerInput.getTriggerInputNumber()][2] = GlobalInputMidi.lovVelocity.get(triggerInput.getVelocityCurve());
+            data[triggerInput.getTriggerInputNumber()][3] = GlobalInputMidi.lovThreshold.get(triggerInput.getThreshold());
+            data[triggerInput.getTriggerInputNumber()][4] = GlobalInputMidi.lovXTalk.get(triggerInput.getXTalk());
+            data[triggerInput.getTriggerInputNumber()][5] = GlobalInputMidi.lovRetrigger.get(triggerInput.getRetrigger());
+            data[triggerInput.getTriggerInputNumber()][6] = GlobalInputMidi.lovType.get(triggerInput.getTriggerType());
         }
     }
 
-    public Input[] synchronise(Input[] triggerInputsIn){
-        Input[] triggerInputsOut = triggerInputsIn;
-        
-        for(Input triggerInput : triggerInputsIn){
+    public GlobalInput[] synchronise(GlobalInput[] triggerInputsIn){
+        GlobalInput[] triggerInputsOut = triggerInputsIn;
+
+        for(GlobalInput triggerInput : triggerInputsIn){
 
             Common.logger.log(
                            Level.FINEST,"Inputnumber = <{0}" + ">" + ", name = <{1}"

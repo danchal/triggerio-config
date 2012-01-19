@@ -3,9 +3,10 @@
  * and open the template in the editor.
  */
 
+import Base.Kit;
 import Midi.Common;
-import Midi.Device;
-import Midi.Kit;
+import Midi.DeviceMidi;
+import Midi.KitMidi;
 import java.util.logging.Level;
 import javax.swing.table.AbstractTableModel;
 
@@ -18,8 +19,8 @@ public class TableModelProgramChange extends AbstractTableModel{
     private Object[][] data;
 
     public TableModelProgramChange() {
-        columnNames = new String[Device.COUNTKIT];
-        data        = new Object[1][Device.COUNTKIT];
+        columnNames = new String[DeviceMidi.COUNTKIT];
+        data        = new Object[1][DeviceMidi.COUNTKIT];
 
         for(int i=0; i<columnNames.length; i++){
             this.columnNames[i] = "Kit-" + i;
@@ -42,7 +43,7 @@ public class TableModelProgramChange extends AbstractTableModel{
     public Object getValueAt(int rowIndex, int columnIndex) {
         return data[rowIndex][columnIndex];
     }
-    
+
     @Override
     public boolean isCellEditable(int row, int col) {
         //Note that the data/cell address is constant,
@@ -58,14 +59,14 @@ public class TableModelProgramChange extends AbstractTableModel{
     public void load(Kit[] kits){
         for(Kit kit : kits){
             Common.logger.log(Level.FINEST, "kitNumber = <{0}>, value = <{1}>", new Object[]{kit.getKitNumber(), kit.getProgramChange()});
-            data[0][kit.getKitNumber()] = Kit.lovProgramChange.get(kit.getProgramChange());
+            data[0][kit.getKitNumber()] = KitMidi.lovProgramChange.get(kit.getProgramChange());
         }
     }
 
     public int getRealValueAt(int row, int col){
-        return Common.getKey(data[row][col], Kit.lovProgramChange);
+        return Common.getKey(data[row][col], KitMidi.lovProgramChange);
     }
-    
+
     public Kit[] synchronise(Kit[] kits){
         Kit[] kitsOut = kits;
         for(Kit kit : kits){

@@ -1,10 +1,10 @@
-import Base.MidiChannel;
-import Base.MidiNote;
+
+import Base.GlobalInput;
+import Base.Input;
 import Midi.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -18,10 +18,9 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableCellRenderer;
 
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * To change this template, choose Tools | Templates and open the template in
+ * the editor.
  */
-
 /**
  *
  * @author DrumTrigger
@@ -29,9 +28,9 @@ import javax.swing.table.DefaultTableCellRenderer;
 public class TriggerIOTool extends JFrame {
 
     //-----------------------------------------------------------
-    public static void main(String[] args){
-        if (args.length!=0){
-            if (args[0].equalsIgnoreCase("debug")){
+    public static void main(String[] args) {
+        if (args.length != 0) {
+            if (args[0].equalsIgnoreCase("debug")) {
                 Common.setLogLevel(Level.ALL);
             }
         }
@@ -39,7 +38,7 @@ public class TriggerIOTool extends JFrame {
     }
 
     //-----------------------------------------------------------
-    public TriggerIOTool(){
+    public TriggerIOTool() {
         initDevice();
         initLov();
         initLabels();
@@ -56,15 +55,18 @@ public class TriggerIOTool extends JFrame {
         Common.logger.log(Level.INFO, "Application.version = <{0}>", bundleVersion.getString("Application.version"));
         Common.logger.log(Level.INFO, "Application.revision = <{0}>", bundleVersion.getString("Application.revision"));
         Common.logger.log(Level.INFO, "Application.build = <{0}>", bundleVersion.getString("Application.build"));
+
+        Common.logger.log(Level.INFO, "bundleVersion.getString(File.xml) <{0}>", bundleVersion.getString("File.xml"));
+        Common.logger.log(Level.INFO, "bundleVersion.getString(File.sysex) <{0}>", bundleVersion.getString("File.sysex"));
     }
 
     //-----------------------------------------------------------
-    private void initDevice(){
-        triggerIODevice = new Device();
+    private void initDevice() {
+        triggerIODevice = new DeviceMidi();
     }
 
     //-----------------------------------------------------------
-    private void initFrame(){
+    private void initFrame() {
 
         this.add(panelMain);
         this.setSize(800, 500);
@@ -75,18 +77,18 @@ public class TriggerIOTool extends JFrame {
     }
 
     //-----------------------------------------------------------
-    private void initLabels(){
+    private void initLabels() {
         labelFileName = new JLabel("---");
         labelDeviceName = new JLabel(OFFLINE);
     }
 
     //-----------------------------------------------------------
-    private void initPanel(){
-        tabbedPaneMain     = new JTabbedPane();
+    private void initPanel() {
+        tabbedPaneMain = new JTabbedPane();
         panelProgramChange = new JPanel();
-        panelMidiChannel   = new JPanel();
-        panelMidiNote      = new JPanel();
-        panelTriggerInput  = new JPanel();
+        panelMidiChannel = new JPanel();
+        panelMidiNote = new JPanel();
+        panelTriggerInput = new JPanel();
 
         panelMain = new JPanel(new BorderLayout());
         panelButtons = new JPanel(new GridBagLayout());
@@ -102,9 +104,9 @@ public class TriggerIOTool extends JFrame {
         tabbedPaneMain.addTab("Trigger Input", panelTriggerInput);
 
         JScrollPane scrollPaneProgramChange = new JScrollPane(tableProgramChange);
-        JScrollPane scrollPaneMidiChannel   = new JScrollPane(tableMidiChannel);
-        JScrollPane scrollPaneMidiNote      = new JScrollPane(tableMidiNote);
-        JScrollPane scrollPaneTriggerInput  = new JScrollPane(tableTriggerInput);
+        JScrollPane scrollPaneMidiChannel = new JScrollPane(tableMidiChannel);
+        JScrollPane scrollPaneMidiNote = new JScrollPane(tableMidiNote);
+        JScrollPane scrollPaneTriggerInput = new JScrollPane(tableTriggerInput);
 
         //Add the scroll pane to this panel.
         panelProgramChange.add(scrollPaneProgramChange);
@@ -176,44 +178,44 @@ public class TriggerIOTool extends JFrame {
     }
 
     //-----------------------------------------------------------
-    private void initLov(){
+    private void initLov() {
 
-        Common.logger.log(Level.FINEST, "count of lovProgramChange=<{0}", String.valueOf(Kit.lovProgramChange.size() + ">" ));
-        Common.logger.log(Level.FINEST, "count of lovTriggerMidiChannel=<{0}", String.valueOf(MidiChannel.lovTriggerMidiChannel.size() + ">" ));
-        Common.logger.log(Level.FINEST, "count of lovTriggerMidiNote=<{0}", String.valueOf(MidiNote.lovTriggerMidiNote.size() + ">" ));
+        Common.logger.log(Level.FINEST, "count of lovProgramChange=<{0}", String.valueOf(KitMidi.lovProgramChange.size() + ">"));
+        Common.logger.log(Level.FINEST, "count of lovTriggerMidiChannel=<{0}", String.valueOf(Input.lovChannel.size() + ">"));
+        Common.logger.log(Level.FINEST, "count of lovTriggerMidiNote=<{0}", String.valueOf(Input.lovNote.size() + ">"));
 
-        Common.logger.log(Level.FINEST, "count of lovGain=<{0}", String.valueOf(Input.lovGain.size() + ">" ));
-        Common.logger.log(Level.FINEST, "count of lovRetrigger=<{0}", String.valueOf(Input.lovRetrigger.size() + ">" ));
-        Common.logger.log(Level.FINEST, "count of lovThreshold=<{0}", String.valueOf(Input.lovThreshold.size() + ">" ));
-        Common.logger.log(Level.FINEST, "count of lovTriggerType=<{0}", String.valueOf(Input.lovTriggerType.size() + ">" ));
-        Common.logger.log(Level.FINEST, "count of lovVelocityCurve=<{0}", String.valueOf(Input.lovVelocityCurve.size() + ">" ));
-        Common.logger.log(Level.FINEST, "count of lovXTalk=<{0}", String.valueOf(Input.lovXTalk.size() + ">" ));
+        Common.logger.log(Level.FINEST, "count of lovGain=<{0}", String.valueOf(GlobalInputMidi.lovGain.size() + ">"));
+        Common.logger.log(Level.FINEST, "count of lovRetrigger=<{0}", String.valueOf(GlobalInputMidi.lovRetrigger.size() + ">"));
+        Common.logger.log(Level.FINEST, "count of lovThreshold=<{0}", String.valueOf(GlobalInputMidi.lovThreshold.size() + ">"));
+        Common.logger.log(Level.FINEST, "count of lovTriggerType=<{0}", String.valueOf(GlobalInputMidi.lovType.size() + ">"));
+        Common.logger.log(Level.FINEST, "count of lovVelocityCurve=<{0}", String.valueOf(GlobalInputMidi.lovVelocity.size() + ">"));
+        Common.logger.log(Level.FINEST, "count of lovXTalk=<{0}", String.valueOf(GlobalInputMidi.lovXTalk.size() + ">"));
 
-        lovProgramChange      = new JComboBox(Kit.lovProgramChange.values().toArray());
-        lovTriggerMidiChannel = new JComboBox(MidiChannel.lovTriggerMidiChannel.values().toArray());
-        lovTriggerMidiNote    = new JComboBox(MidiNote.lovTriggerMidiNote.values().toArray());
+        lovProgramChange = new JComboBox(KitMidi.lovProgramChange.values().toArray());
+        lovTriggerMidiChannel = new JComboBox(Input.lovChannel.values().toArray());
+        lovTriggerMidiNote = new JComboBox(Input.lovNote.values().toArray());
 
-        lovGain               = new JComboBox(Input.lovGain.values().toArray());
-        lovRetrigger          = new JComboBox(Input.lovRetrigger.values().toArray());
-        lovThreshold          = new JComboBox(Input.lovThreshold.values().toArray());
-        lovTriggerType        = new JComboBox(Input.lovTriggerType.values().toArray());
-        lovVelocityCurve      = new JComboBox(Input.lovVelocityCurve.values().toArray());
-        lovXTalk              = new JComboBox(Input.lovXTalk.values().toArray());
+        lovGain = new JComboBox(GlobalInputMidi.lovGain.values().toArray());
+        lovRetrigger = new JComboBox(GlobalInputMidi.lovRetrigger.values().toArray());
+        lovThreshold = new JComboBox(GlobalInputMidi.lovThreshold.values().toArray());
+        lovTriggerType = new JComboBox(GlobalInputMidi.lovType.values().toArray());
+        lovVelocityCurve = new JComboBox(GlobalInputMidi.lovVelocity.values().toArray());
+        lovXTalk = new JComboBox(GlobalInputMidi.lovXTalk.values().toArray());
 
         lovProgramChange.setMaximumRowCount(10);
     }
 
     //-----------------------------------------------------------
-    private void initTables(){
+    private void initTables() {
         tableModelProgramChange = new TableModelProgramChange();
         tableModelMidiChannel = new TableModelMidiChannel();
         tableModelMidiNote = new TableModelMidiNote();
         tableModelTriggerInput = new TableModelTriggerInput();
 
         tableProgramChange = new JTable(tableModelProgramChange);
-        tableMidiChannel   = new JTable(tableModelMidiChannel);
-        tableMidiNote      = new JTable(tableModelMidiNote);
-        tableTriggerInput  = new JTable(tableModelTriggerInput);
+        tableMidiChannel = new JTable(tableModelMidiChannel);
+        tableMidiNote = new JTable(tableModelMidiNote);
+        tableTriggerInput = new JTable(tableModelTriggerInput);
 
         tableProgramChange.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         tableMidiChannel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -229,20 +231,20 @@ public class TriggerIOTool extends JFrame {
 
         Common.logger.log(Level.FINEST, "tableProgramChange.getColumnCount() ={0}", tableProgramChange.getColumnCount());
 
-        for(int column=0; column<tableProgramChange.getColumnCount(); column++){
+        for (int column = 0; column < tableProgramChange.getColumnCount(); column++) {
             tableProgramChange.getColumnModel().getColumn(column).setCellEditor(new DefaultCellEditor(lovProgramChange));
         }
 
         Common.logger.log(Level.FINEST, "tableMidiChannel.getColumnCount() ={0}", tableMidiChannel.getColumnCount());
 
-        for(int column=0; column<tableMidiChannel.getColumnCount(); column++){
+        for (int column = 0; column < tableMidiChannel.getColumnCount(); column++) {
             tableMidiChannel.getColumnModel().getColumn(column).setCellEditor(new DefaultCellEditor(lovTriggerMidiChannel));
             tableMidiChannel.getColumnModel().getColumn(column).setCellRenderer(new DefaultTableCellRenderer());
         }
 
         Common.logger.log(Level.FINEST, "tableMidiNote.getColumnCount() ={0}", tableMidiNote.getColumnCount());
 
-        for(int column=0; column<tableMidiNote.getColumnCount(); column++){
+        for (int column = 0; column < tableMidiNote.getColumnCount(); column++) {
             tableMidiNote.getColumnModel().getColumn(column).setCellEditor(new DefaultCellEditor(lovTriggerMidiNote));
         }
 
@@ -251,12 +253,12 @@ public class TriggerIOTool extends JFrame {
         tableMidiChannel.getColumnModel().getColumn(0).setMinWidth(110);
         tableTriggerInput.getColumnModel().getColumn(0).setMinWidth(110);
 
-        tableTriggerInput.getColumnModel().getColumn(1).setCellEditor(new DefaultCellEditor(lovGain              ));
-        tableTriggerInput.getColumnModel().getColumn(2).setCellEditor(new DefaultCellEditor(lovVelocityCurve     ));
-        tableTriggerInput.getColumnModel().getColumn(3).setCellEditor(new DefaultCellEditor(lovThreshold         ));
-        tableTriggerInput.getColumnModel().getColumn(4).setCellEditor(new DefaultCellEditor(lovXTalk             ));
-        tableTriggerInput.getColumnModel().getColumn(5).setCellEditor(new DefaultCellEditor(lovRetrigger         ));
-        tableTriggerInput.getColumnModel().getColumn(6).setCellEditor(new DefaultCellEditor(lovTriggerType       ));
+        tableTriggerInput.getColumnModel().getColumn(1).setCellEditor(new DefaultCellEditor(lovGain));
+        tableTriggerInput.getColumnModel().getColumn(2).setCellEditor(new DefaultCellEditor(lovVelocityCurve));
+        tableTriggerInput.getColumnModel().getColumn(3).setCellEditor(new DefaultCellEditor(lovThreshold));
+        tableTriggerInput.getColumnModel().getColumn(4).setCellEditor(new DefaultCellEditor(lovXTalk));
+        tableTriggerInput.getColumnModel().getColumn(5).setCellEditor(new DefaultCellEditor(lovRetrigger));
+        tableTriggerInput.getColumnModel().getColumn(6).setCellEditor(new DefaultCellEditor(lovTriggerType));
 
         tableProgramChange.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         tableMidiNote.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
@@ -265,7 +267,8 @@ public class TriggerIOTool extends JFrame {
 
     }
 
-    private void setEnabledTables(boolean enabled){
+    //-----------------------------------------------------------
+    private void setEnabledTables(boolean enabled) {
         tableProgramChange.setEnabled(enabled);
         tableMidiChannel.setEnabled(enabled);
         tableMidiNote.setEnabled(enabled);
@@ -273,7 +276,7 @@ public class TriggerIOTool extends JFrame {
     }
 
     //-----------------------------------------------------------
-    private void addTableListeners(){
+    private void addTableListeners() {
         tableMidiNote.addKeyListener(new KeyListener() {
 
             public void keyTyped(KeyEvent e) {
@@ -317,7 +320,7 @@ public class TriggerIOTool extends JFrame {
     }
 
     //----------------------------------------------------------
-    private void initMenu(){
+    private void initMenu() {
         menuBarMain = new JMenuBar();
         initMenuFile();
         initMenuDevice();
@@ -332,33 +335,38 @@ public class TriggerIOTool extends JFrame {
     }
 
     //-----------------------------------------------------------
-    private void initMenuDownload(){
+    private void initMenuDownload() {
         menuDownload = new JMenu("Download");
 
         menuDownload.addMenuListener(new MenuListener() {
+
             public void menuSelected(MenuEvent e) {
                 menuSelectedDownload(e);
             }
+
             public void menuDeselected(MenuEvent e) {
                 //
             }
+
             public void menuCanceled(MenuEvent e) {
                 //
             }
         });
     }
 
-    private void menuSelectedDownload(MenuEvent evt){
+    //-----------------------------------------------------------
+    private void menuSelectedDownload(MenuEvent evt) {
         refreshTransmittingDevices();
         menuDownload.removeAll();
 
         boolean selectedDevice = false;
-        for(MidiDevice.Info deviceInfo : transmittingDeviceInfos){
+        for (MidiDevice.Info deviceInfo : transmittingDeviceInfos) {
 
             JMenuItem menuItem = new JMenuItem(deviceInfo.getName());
             menuItem.setActionCommand(getDeviceInfoHash(deviceInfo));
-            menuItem.addActionListener(new java.awt.event.ActionListener(){
-                public void actionPerformed(java.awt.event.ActionEvent evt){
+            menuItem.addActionListener(new java.awt.event.ActionListener() {
+
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
                     actionPerformedMenuItemDownload(evt);
                 }
             });
@@ -368,11 +376,12 @@ public class TriggerIOTool extends JFrame {
     }
 
     //-----------------------------------------------------------
-    private void initMenuHelp(){
+    private void initMenuHelp() {
         menuHelp = new JMenu("Help");
         menuItemHelpAbout = new JMenuItem("About");
 
         menuItemHelpAbout.addActionListener(new ActionListener() {
+
             public void actionPerformed(ActionEvent evt) {
                 actionPerformedMenuItemHelpAbout(evt);
             }
@@ -381,23 +390,24 @@ public class TriggerIOTool extends JFrame {
         menuHelp.add(menuItemHelpAbout);
     }
 
-    private String getApplicationVersion(){
+    //-----------------------------------------------------------
+    private String getApplicationVersion() {
         return (bundleVersion.getString("Application.version") + "."
                 + bundleVersion.getString("Application.revision") + "."
-                + bundleVersion.getString("Application.build")
-                );
-    }
-
-    private void actionPerformedMenuItemHelpAbout(ActionEvent evt){
-        JOptionPane.showMessageDialog(this, bundleVersion.getString("Application.title")
-                + "\nVersion: "+ getApplicationVersion()
-                + "\n"
-                + "\n"+ bundleVersion.getString("Author.web"));
+                + bundleVersion.getString("Application.build"));
     }
 
     //-----------------------------------------------------------
-    private void initMenuFile(){
-        menuFile    = new JMenu("File");
+    private void actionPerformedMenuItemHelpAbout(ActionEvent evt) {
+        JOptionPane.showMessageDialog(this, bundleVersion.getString("Application.title")
+                + "\nVersion: " + getApplicationVersion()
+                + "\n"
+                + "\n" + bundleVersion.getString("Author.web"));
+    }
+
+    //-----------------------------------------------------------
+    private void initMenuFile() {
+        menuFile = new JMenu("File");
 
         menuItemFileOpen = new JMenuItem("Open");
         menuItemFileSave = new JMenuItem("Save");
@@ -405,23 +415,27 @@ public class TriggerIOTool extends JFrame {
         menuItemFileExit = new JMenuItem("Exit");
 
         menuItemFileOpen.addActionListener(new ActionListener() {
+
             public void actionPerformed(ActionEvent evt) {
                 actionPerformedMenuItemFileOpen(evt);
             }
         });
         menuItemFileSave.addActionListener(new ActionListener() {
+
             public void actionPerformed(ActionEvent evt) {
                 actionPerformedMenuItemFileSave(evt);
             }
         });
 
         menuItemFileSaveAs.addActionListener(new ActionListener() {
+
             public void actionPerformed(ActionEvent evt) {
                 actionPerformedMenuItemFileSaveAs(evt);
             }
         });
 
         menuItemFileExit.addActionListener(new ActionListener() {
+
             public void actionPerformed(ActionEvent evt) {
                 ationPerformedMenuItemFileExit(evt);
             }
@@ -434,46 +448,50 @@ public class TriggerIOTool extends JFrame {
     }
 
     //-----------------------------------------------------------
-    private void initMenuDevice(){
-        menuDevice  = new JMenu("Device");
+    private void initMenuDevice() {
+        menuDevice = new JMenu("Device");
 
         menuDevice.addMenuListener(new MenuListener() {
+
             public void menuSelected(MenuEvent evt) {
                 menuSelectedDevice(evt);
             }
+
             public void menuDeselected(MenuEvent evt) {
                 //
             }
+
             public void menuCanceled(MenuEvent evt) {
                 //
             }
         });
     }
 
-    public static String getDeviceInfoHash(MidiDevice.Info deviceInfo){
+    //-----------------------------------------------------------
+    public static String getDeviceInfoHash(MidiDevice.Info deviceInfo) {
         return String.valueOf(
-                                    deviceInfo.toString()
-                        + "|" + deviceInfo.getName()
-                        + "|" + deviceInfo.getDescription()
-                        + "|" + deviceInfo.getVendor()
-                        + "|" + deviceInfo.getVersion());
+                deviceInfo.toString()
+                + "|" + deviceInfo.getName()
+                + "|" + deviceInfo.getDescription()
+                + "|" + deviceInfo.getVendor()
+                + "|" + deviceInfo.getVersion());
     }
 
     //-----------------------------------------------------------
-    private void refreshReceivingDevices(){
+    private void refreshReceivingDevices() {
         receivingDeviceInfos = Common.getReceivingDevices();
     }
 
     //-----------------------------------------------------------
-    private void refreshTransmittingDevices(){
+    private void refreshTransmittingDevices() {
         transmittingDeviceInfos = Common.getTransmittingDevices();
     }
 
     //-----------------------------------------------------------
-    private void menuSelectedDevice(MenuEvent evt){
+    private void menuSelectedDevice(MenuEvent evt) {
         String currentDeviceHashValue = "";
 
-        if (triggerIODevice.isOpen()){
+        if (triggerIODevice.isOpen()) {
             try {
                 currentDeviceHashValue = getDeviceInfoHash(triggerIODevice.getInfo());
             } catch (Exception e) {
@@ -490,6 +508,7 @@ public class TriggerIOTool extends JFrame {
         JRadioButtonMenuItem radioButtonMenuItemDeviceOffline = new JRadioButtonMenuItem("Offline");
         radioButtonMenuItemDeviceOffline.setActionCommand(OFFLINE);
         radioButtonMenuItemDeviceOffline.addActionListener(new ActionListener() {
+
             public void actionPerformed(ActionEvent evt) {
                 actionPerformedMenuItemDevice(evt);
             }
@@ -498,41 +517,41 @@ public class TriggerIOTool extends JFrame {
         buttonGroupMenuItemsDevice.add(radioButtonMenuItemDeviceOffline);
 
         boolean selectedDevice = false;
-        for(MidiDevice.Info deviceInfo : receivingDeviceInfos){
+        for (MidiDevice.Info deviceInfo : receivingDeviceInfos) {
             String foundDeviceHashValue = getDeviceInfoHash(deviceInfo);
             Common.logger.log(Level.FINEST, "found device<{0}>", foundDeviceHashValue);
 
             JRadioButtonMenuItem menuItem = new JRadioButtonMenuItem(deviceInfo.toString());
             menuItem.setActionCommand(foundDeviceHashValue);
-            menuItem.addActionListener(new java.awt.event.ActionListener(){
-                public void actionPerformed(java.awt.event.ActionEvent evt){
+            menuItem.addActionListener(new java.awt.event.ActionListener() {
+
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
                     actionPerformedMenuItemDevice(evt);
                 }
             });
-            
-             if (foundDeviceHashValue.equals(currentDeviceHashValue) ){
+
+            if (foundDeviceHashValue.equals(currentDeviceHashValue)) {
                 Common.logger.finest("devices match");
                 selectedDevice = true;
                 menuItem.setSelected(true);
-             }
+            }
 
             buttonGroupMenuItemsDevice.add(menuItem);
             menuDevice.add(menuItem);
         }
         menuDevice.add(radioButtonMenuItemDeviceOffline);
-        if (!selectedDevice){
+        if (!selectedDevice) {
             radioButtonMenuItemDeviceOffline.setSelected(true);
         }
     }
 
     //-----------------------------------------------------------
-    private void actionPerformedMenuItemDevice(ActionEvent evt){
-        if(evt.getActionCommand().equalsIgnoreCase(OFFLINE)){
+    private void actionPerformedMenuItemDevice(ActionEvent evt) {
+        if (evt.getActionCommand().equalsIgnoreCase(OFFLINE)) {
             goOffline();
-        }
-        else{
-            for(MidiDevice.Info deviceInfo : receivingDeviceInfos){
-                if(getDeviceInfoHash(deviceInfo).equals(evt.getActionCommand())){
+        } else {
+            for (MidiDevice.Info deviceInfo : receivingDeviceInfos) {
+                if (getDeviceInfoHash(deviceInfo).equals(evt.getActionCommand())) {
                     goOnline(deviceInfo);
                 }
             }
@@ -540,9 +559,9 @@ public class TriggerIOTool extends JFrame {
     }
 
     //-----------------------------------------------------------
-    private void actionPerformedMenuItemDownload(ActionEvent evt){
-        for(MidiDevice.Info deviceInfo : transmittingDeviceInfos){
-            if(getDeviceInfoHash(deviceInfo).equals(evt.getActionCommand())){
+    private void actionPerformedMenuItemDownload(ActionEvent evt) {
+        for (MidiDevice.Info deviceInfo : transmittingDeviceInfos) {
+            if (getDeviceInfoHash(deviceInfo).equals(evt.getActionCommand())) {
                 try {
                     download(deviceInfo);
                 } catch (MidiUnavailableException ex) {
@@ -553,10 +572,10 @@ public class TriggerIOTool extends JFrame {
     }
 
     //-----------------------------------------------------------
-    private void download(MidiDevice.Info deviceInfo) throws MidiUnavailableException{
+    private void download(MidiDevice.Info deviceInfo) throws MidiUnavailableException {
         Common.logger.info("Download");
 
-        if(checkUnsavedChanges()){
+        if (checkUnsavedChanges()) {
             DownloadReceiver receiver = new DownloadReceiver();
             MidiDevice midiDevice = MidiSystem.getMidiDevice(deviceInfo);
             midiDevice.open();
@@ -565,42 +584,40 @@ public class TriggerIOTool extends JFrame {
             transmitter.setReceiver(receiver);
 
             int confirmDialog = JOptionPane.showConfirmDialog(this, "Request a transfer dump from your TriggerIO then press [OK]", "Download", JOptionPane.OK_CANCEL_OPTION);
-            
+
             midiDevice.close();
             receiver.close();
-            
-            switch(confirmDialog){
+
+            switch (confirmDialog) {
                 case JOptionPane.OK_OPTION:
 
-                    if(!receiver.midiMessages.isEmpty()){
+                    if (!receiver.midiMessages.isEmpty()) {
                         triggerIODevice.kits = receiver.kits;
-                        triggerIODevice.triggerInputs = receiver.triggerInputs;
-                         
+                        triggerIODevice.globalInputs = receiver.triggerInputs;
+
                         loadTables();
                         saveAsFile();
-                    }
-                    else{
+                    } else {
                         JOptionPane.showMessageDialog(this, "No sysex messages received", "Download", JOptionPane.ERROR_MESSAGE);
-                        
+
                     }
                     break;
 
                 case JOptionPane.CANCEL_OPTION:
                     break;
             }
-        }
-        else{
+        } else {
             Common.logger.info("else??");
         }
     }
 
     //-----------------------------------------------------------
-    private boolean checkUnsavedChanges(){
+    private boolean checkUnsavedChanges() {
         boolean continueAction = false;
-        if(fileChanged){
+        if (fileChanged) {
             int confirmDialog = JOptionPane.showConfirmDialog(this, "Save changes to current file?", "Unsaved Changes", JOptionPane.YES_NO_CANCEL_OPTION);
 
-            switch(confirmDialog){
+            switch (confirmDialog) {
                 case JOptionPane.YES_OPTION:
                     saveFile();
                     break;
@@ -612,47 +629,47 @@ public class TriggerIOTool extends JFrame {
                 case JOptionPane.CANCEL_OPTION:
                     break;
             }
-        }
-        else{
+        } else {
             continueAction = true;
         }
         return continueAction;
     }
 
     //-----------------------------------------------------------
-    private void actionPerformedMenuItemFileOpen(ActionEvent evt){
-        if (checkUnsavedChanges()){
+    private void actionPerformedMenuItemFileOpen(ActionEvent evt) {
+        if (checkUnsavedChanges()) {
             chooseFile();
         }
     }
 
-    private void chooseFile(){
-        JFileChooser    fc = new JFileChooser(currentDirectory);
-        fc.addChoosableFileFilter(sysexFileNameExtensionFilter);
+    //-----------------------------------------------------------
+    private void chooseFile() {
+        JFileChooser fc = new JFileChooser(currentDirectory);
+        fc.addChoosableFileFilter(fileNameExtensionFilter);
 
         int returnVal = fc.showOpenDialog(null);
 
-         if (returnVal == JFileChooser.APPROVE_OPTION) {
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
 
-             currentFile = fc.getSelectedFile();
-             openFile();
-         }
+            currentFile = fc.getSelectedFile();
+            openFile();
+        }
     }
 
-    private void fileStatus(boolean isOpen){
+    //-----------------------------------------------------------
+    private void fileStatus(boolean isOpen) {
         fileChanged = false;
         menuItemFileSave.setEnabled(isOpen);
         menuItemFileSaveAs.setEnabled(isOpen);
 
         setEnabledTables(isOpen);
 
-        if(isOpen){
+        if (isOpen) {
             currentDirectory = currentFile.getPath();
 
             labelFileName.setText(currentFile.toString());
             labelFileName.setForeground(Color.BLUE);
-        }
-        else{
+        } else {
             currentFile = null;
 
             labelFileName.setText("---");
@@ -661,16 +678,26 @@ public class TriggerIOTool extends JFrame {
     }
 
     //-----------------------------------------------------------
-    private void openFile(){
+    private void openFile() {
+        String ext = currentFile.getPath().substring(currentFile.getPath().lastIndexOf(".") + 1, currentFile.getPath().length());
+        Common.logger.log(Level.INFO, "File extension <{0}>", ext);
+
         try {
-            triggerIODevice.importSysex(currentFile);
+            if (ext.equalsIgnoreCase(bundleVersion.getString("File.xml"))) {
+                triggerIODevice.importXml(currentFile);
+
+            } else if (ext.equalsIgnoreCase(bundleVersion.getString("File.sysex"))) {
+                triggerIODevice.importSysex(currentFile);
+
+            } else {
+                throw new Exception();
+            }
+
             loadTables();
-
             fileStatus(true);
-
             syncDeviceToFile();
 
-            Common.logger.log(Level.INFO, "File opened {0}", currentFile.toString());
+            Common.logger.log(Level.INFO, "File opened <{0}>", currentFile.toString());
 
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Invalid File", "Open File", JOptionPane.ERROR_MESSAGE);
@@ -680,58 +707,54 @@ public class TriggerIOTool extends JFrame {
     }
 
     //-----------------------------------------------------------
-    private void actionPerformedMenuItemFileSave(ActionEvent evt){
+    private void actionPerformedMenuItemFileSave(ActionEvent evt) {
         saveFile();
     }
 
     //-----------------------------------------------------------
-    private void actionPerformedMenuItemFileSaveAs(ActionEvent evt){
+    private void actionPerformedMenuItemFileSaveAs(ActionEvent evt) {
         saveAsFile();
     }
 
-
-
     //-----------------------------------------------------------
-    private boolean setCurrentFile(){
+    private boolean setCurrentFile() {
         File selectedFile;
 
         boolean fileSet = false;
 
-        JFileChooser    fc = new JFileChooser(currentDirectory);
-        fc.addChoosableFileFilter(sysexFileNameExtensionFilter);
+        JFileChooser fc = new JFileChooser(currentDirectory);
+        fc.addChoosableFileFilter(fileNameExtensionFilter);
 
         int returnVal = fc.showSaveDialog(null);
 
         if (returnVal == JFileChooser.APPROVE_OPTION) {
-           selectedFile = fc.getSelectedFile();
+            selectedFile = fc.getSelectedFile();
 
-           if (selectedFile.toString().endsWith("." + DEFAULTEXTENSION)){
-               currentFile = selectedFile;
-           }
-           else{
-               currentFile = new File(selectedFile.toString() + "." + DEFAULTEXTENSION);
-           }
-           fileSet = true;
+            if (selectedFile.toString().endsWith("." + DEFAULTEXTENSION)) {
+                currentFile = selectedFile;
+            } else {
+                currentFile = new File(selectedFile.toString() + "." + DEFAULTEXTENSION);
+            }
+            fileSet = true;
         }
 
         return fileSet;
     }
 
     //-----------------------------------------------------------
-    private void saveAsFile(){
-        if (setCurrentFile()){
+    private void saveAsFile() {
+        if (setCurrentFile()) {
             saveCurrentFile();
         }
     }
 
     //-----------------------------------------------------------
-    private void saveFile(){
+    private void saveFile() {
         Common.logger.fine("begin");
         try {
-            if (currentFile.exists()){
+            if (currentFile.exists()) {
                 saveCurrentFile();
-            }
-            else{
+            } else {
                 saveAsFile();
             }
         } catch (java.lang.NullPointerException e) {
@@ -741,17 +764,17 @@ public class TriggerIOTool extends JFrame {
     }
 
     //-----------------------------------------------------------
-    private void saveCurrentFile(){
+    private void saveCurrentFile() {
         currentDirectory = currentFile.getPath();
         try {
-            triggerIODevice.export(currentFile);
+            triggerIODevice.exportXml(currentFile);
 
             fileStatus(true);
 
             Common.logger.log(Level.INFO, "Saved {0}", currentFile.getName());
             JOptionPane.showMessageDialog(this, "File " + currentFile.toString() + "\n Saved", "Save", JOptionPane.INFORMATION_MESSAGE);
 
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             Common.logger.severe(ex.getLocalizedMessage());
             JOptionPane.showMessageDialog(this, ex.getLocalizedMessage(), "Save", JOptionPane.ERROR_MESSAGE);
 
@@ -759,14 +782,15 @@ public class TriggerIOTool extends JFrame {
         }
     }
 
-    private void  exitApp() {
-        if(fileChanged){
+    //-----------------------------------------------------------
+    private void exitApp() {
+        if (fileChanged) {
             int confirmDialog = JOptionPane.showConfirmDialog(this, "Save changes?", "Unsaved Changes", JOptionPane.YES_NO_CANCEL_OPTION);
 
-            switch(confirmDialog){
+            switch (confirmDialog) {
                 case JOptionPane.YES_OPTION:
                     saveCurrentFile();
-                    if(!fileChanged){
+                    if (!fileChanged) {
                         this.dispose();
                     }
                     break;
@@ -778,8 +802,7 @@ public class TriggerIOTool extends JFrame {
                 case JOptionPane.CANCEL_OPTION:
                     break;
             }
-        }
-        else{
+        } else {
             this.dispose();
         }
     }
@@ -790,53 +813,53 @@ public class TriggerIOTool extends JFrame {
     }
 
     //-----------------------------------------------------------
-    public void loadTables(){
+    public void loadTables() {
         synchroniseTablesToDevice();
-        for(Input triggerInput : triggerIODevice.triggerInputs){
+        for (GlobalInput triggerInput : triggerIODevice.globalInputs) {
             tableMidiChannel.setValueAt(triggerInput.getTriggerInputName(), triggerInput.getTriggerInputNumber(), 0);
             tableMidiNote.setValueAt(triggerInput.getTriggerInputName(), triggerInput.getTriggerInputNumber(), 0);
         }
-        
+
         Common.logger.fine("end");
     }
 
     //-----------------------------------------------------------
-    private void tableChangedProgramChange(TableModelEvent evt){
+    private void tableChangedProgramChange(TableModelEvent evt) {
         triggerIODevice.kits[evt.getColumn()].setProgramChange(tableModelProgramChange.getRealValueAt(evt.getFirstRow(), evt.getColumn()));
         updateDrumKit(evt.getColumn());
     }
 
     //-----------------------------------------------------------
-    private void tableChangedMidiChannel(TableModelEvent evt){
-        if(evt.getColumn() != 0){
-            triggerIODevice.kits[evt.getColumn()-1].triggerMidiChannel.get(evt.getFirstRow()).setTriggerMidiChannel(tableModelMidiChannel.getRealValueAt(evt.getFirstRow(), evt.getColumn()));
-            updateDrumKit(evt.getColumn()-1);
+    private void tableChangedMidiChannel(TableModelEvent evt) {
+        if (evt.getColumn() != 0) {
+            triggerIODevice.kits[evt.getColumn() - 1].inputs.get(evt.getFirstRow()).setChannel(tableModelMidiChannel.getRealValueAt(evt.getFirstRow(), evt.getColumn()));
+            updateDrumKit(evt.getColumn() - 1);
         }
     }
 
     //-----------------------------------------------------------
-    private void tableChangedMidiNote(TableModelEvent evt){
-        if(evt.getColumn() != 0){
-            triggerIODevice.kits[evt.getColumn()-1].triggerMidiNote.get(evt.getFirstRow()).setTriggerMidiNote(tableModelMidiNote.getRealValueAt(evt.getFirstRow(), evt.getColumn()));
-            updateDrumKit(evt.getColumn()-1);
+    private void tableChangedMidiNote(TableModelEvent evt) {
+        if (evt.getColumn() != 0) {
+            triggerIODevice.kits[evt.getColumn() - 1].inputs.get(evt.getFirstRow()).setNote(tableModelMidiNote.getRealValueAt(evt.getFirstRow(), evt.getColumn()));
+            updateDrumKit(evt.getColumn() - 1);
         }
     }
 
     //-----------------------------------------------------------
-    private void tableChangedTriggerInput(TableModelEvent evt){
-        triggerIODevice.triggerInputs[evt.getFirstRow()] = tableModelTriggerInput.getTriggerInput(evt.getFirstRow());
+    private void tableChangedTriggerInput(TableModelEvent evt) {
+        triggerIODevice.globalInputs[evt.getFirstRow()] = tableModelTriggerInput.getTriggerInput(evt.getFirstRow());
 
-        if(evt.getColumn() != 0){
+        if (evt.getColumn() != 0) {
             updateTriggerInput(evt.getFirstRow());
-        }
-        else{
+        } else {
             tableMidiChannel.setValueAt(tableTriggerInput.getValueAt(evt.getFirstRow(), 0), evt.getFirstRow(), 0);
             tableMidiNote.setValueAt(tableTriggerInput.getValueAt(evt.getFirstRow(), 0), evt.getFirstRow(), 0);
         }
     }
+
     //-----------------------------------------------------------
-    private void updateDrumKit(int kitNumber){
-        if(triggerIODevice.isOpen()){
+    private void updateDrumKit(int kitNumber) {
+        if (triggerIODevice.isOpen()) {
             try {
                 triggerIODevice.sendtKit(kitNumber);
             } catch (MidiUnavailableException ex) {
@@ -849,8 +872,8 @@ public class TriggerIOTool extends JFrame {
     }
 
     //-----------------------------------------------------------
-    private void updateTriggerInput(int inputNumber){
-        if(triggerIODevice.isOpen()){
+    private void updateTriggerInput(int inputNumber) {
+        if (triggerIODevice.isOpen()) {
             try {
                 triggerIODevice.sendTriggerInput(inputNumber);
             } catch (MidiUnavailableException ex) {
@@ -863,13 +886,13 @@ public class TriggerIOTool extends JFrame {
     }
 
     //-----------------------------------------------------------
-    private void fileChanged(){
+    private void fileChanged() {
         fileChanged = true;
     }
 
     //-----------------------------------------------------------
-    private void goOffline(){
-        if (triggerIODevice.isOpen()){
+    private void goOffline() {
+        if (triggerIODevice.isOpen()) {
             triggerIODevice.close();
         }
         labelDeviceName.setText(OFFLINE);
@@ -879,43 +902,39 @@ public class TriggerIOTool extends JFrame {
     }
 
     //-----------------------------------------------------------
-    private void goOnline(MidiDevice.Info deviceInfo){
+    private void goOnline(MidiDevice.Info deviceInfo) {
         try {
             triggerIODevice.open(deviceInfo);
             labelDeviceName.setText(deviceInfo.getName());
             labelDeviceName.setForeground(Color.BLUE);
 
             syncDeviceToFile();
-        }
-        catch (MidiUnavailableException ex) {
+        } catch (MidiUnavailableException ex) {
             Common.logger.log(Level.WARNING, "MidiUnavailableException, {0}{1}{2}", new Object[]{ex.getMessage(), ex.toString(), ex.getStackTrace()});
-            JOptionPane.showMessageDialog(this, "This device is unavailable:\n" + deviceInfo.getDescription()
-                    , "Device Unavailable", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "This device is unavailable:\n" + deviceInfo.getDescription(), "Device Unavailable", JOptionPane.ERROR_MESSAGE);
             goOffline();
         }
     }
 
-    private void syncDeviceToFile() throws MidiUnavailableException{
-        if (triggerIODevice.isOpen()){
+    //-----------------------------------------------------------
+    private void syncDeviceToFile() throws MidiUnavailableException {
+        if (triggerIODevice.isOpen()) {
             try {
                 if (currentFile.exists()) {
                     Common.logger.fine("file exists");
-                }
-                else{
+                } else {
                     chooseFile();
                 }
                 int option = JOptionPane.showConfirmDialog(this, "The device will be synchronised with the current loaded file", "Synchronise", JOptionPane.OK_CANCEL_OPTION);
 
-                switch (option){
+                switch (option) {
                     case JOptionPane.OK_OPTION:
                         try {
                             synchroniseDeviceToTables();
                             triggerIODevice.send();
-                        }
-                        catch (InvalidMidiDataException ex) {
+                        } catch (InvalidMidiDataException ex) {
                             Common.logger.severe(ex.toString());
-                                        JOptionPane.showMessageDialog(this, ex.getMessage() + ex.toString()
-                                    , "Something went wrong", JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(this, ex.getMessage() + ex.toString(), "Something went wrong", JOptionPane.ERROR_MESSAGE);
                             goOffline();
                         }
                         break;
@@ -924,31 +943,29 @@ public class TriggerIOTool extends JFrame {
                         break;
                 }
 
-            }
-            catch (NullPointerException ex){
+            } catch (NullPointerException ex) {
                 Common.logger.warning("problem with file");
                 chooseFile();
             }
         }
     }
 
-
     //-----------------------------------------------------------
-    private void synchroniseDeviceToTables(){
+    private void synchroniseDeviceToTables() {
         Common.logger.fine("synchroniseDeviceToTables");
-        triggerIODevice.kits = tableModelProgramChange.synchronise(triggerIODevice.kits);
+        triggerIODevice.kits  =tableModelProgramChange.synchronise(triggerIODevice.kits);
         triggerIODevice.kits = tableModelMidiChannel.synchronise(triggerIODevice.kits);
         triggerIODevice.kits = tableModelMidiNote.synchronise(triggerIODevice.kits);
-        triggerIODevice.triggerInputs = tableModelTriggerInput.synchronise(triggerIODevice.triggerInputs);
+        triggerIODevice.globalInputs = tableModelTriggerInput.synchronise(triggerIODevice.globalInputs);
     }
 
     //-----------------------------------------------------------
-    private void synchroniseTablesToDevice(){
+    private void synchroniseTablesToDevice() {
         Common.logger.fine("synchroniseTablesToDevice");
         tableModelProgramChange.load(triggerIODevice.kits);
         tableModelMidiChannel.load(triggerIODevice.kits);
         tableModelMidiNote.load(triggerIODevice.kits);
-        tableModelTriggerInput.load(triggerIODevice.triggerInputs);
+        tableModelTriggerInput.load(triggerIODevice.globalInputs);
         this.repaint();
     }
 
@@ -959,98 +976,83 @@ public class TriggerIOTool extends JFrame {
         int editingRow = tableMidiNote.getEditingRow();
         int editingColumn = tableMidiNote.getEditingColumn();
 
-        if (editingRow != -1 && editingColumn != -1){
+        if (editingRow != -1 && editingColumn != -1) {
             Common.logger.finest("currentRealValue");
             int currentRealValue = tableModelMidiNote.getRealValueAt(editingRow, editingColumn);
             Object newValue = null;
 
-            switch (evt.getKeyCode()){
-            case 44:
-                newValue = lovTriggerMidiNote.getItemAt(currentRealValue - 1);
-                Common.logger.log(Level.FINEST, "< pressed, new value =<{0}>", newValue.toString());
-                break;
-            case 46:
-                newValue = lovTriggerMidiNote.getItemAt(currentRealValue + 1);
-                Common.logger.log(Level.FINEST, "> pressed, new value =<{0}>", newValue.toString());
-                break;
+            switch (evt.getKeyCode()) {
+                case 44:
+                    newValue = lovTriggerMidiNote.getItemAt(currentRealValue - 1);
+                    Common.logger.log(Level.FINEST, "< pressed, new value =<{0}>", newValue.toString());
+                    break;
+                case 46:
+                    newValue = lovTriggerMidiNote.getItemAt(currentRealValue + 1);
+                    Common.logger.log(Level.FINEST, "> pressed, new value =<{0}>", newValue.toString());
+                    break;
             }
-            if (newValue != null){
+            if (newValue != null) {
                 Common.logger.finest("set value at");
                 tableModelMidiNote.setValueAt(newValue, editingRow, editingColumn);
             }
         }
     }
 
-    private void addWindowListeners(){
+    //-----------------------------------------------------------
+    private void addWindowListeners() {
         this.addWindowListener(new WindowListener() {
- 
+
             public void windowClosing(WindowEvent e) {
                 exitApp();
             }
 
             public void windowOpened(WindowEvent e) {
-
             }
 
             public void windowClosed(WindowEvent e) {
-
             }
 
             public void windowIconified(WindowEvent e) {
-
             }
 
             public void windowDeiconified(WindowEvent e) {
-
             }
 
             public void windowActivated(WindowEvent e) {
-
             }
 
             public void windowDeactivated(WindowEvent e) {
-                
             }
         });
     }
-
     //-----------------------------------------------------------
     JPanel panelMain;
     JPanel panelButtons;
-
-    //JScrollPane scrollPaneTabbedMain;
-
     JTabbedPane tabbedPaneMain;
     JPanel panelProgramChange;
-    JPanel panelMidiChannel  ;
-    JPanel panelMidiNote     ;
-    JPanel panelTriggerInput ;
-
+    JPanel panelMidiChannel;
+    JPanel panelMidiNote;
+    JPanel panelTriggerInput;
     JLabel labelFileName;
     JLabel labelDeviceName;
-
     JMenuBar menuBarMain;
-    JMenu    menuFile;
-    JMenu    menuDevice;
-    JMenu    menuHelp;
-    JMenu    menuDownload;
-
+    JMenu menuFile;
+    JMenu menuDevice;
+    JMenu menuHelp;
+    JMenu menuDownload;
     JMenuItem menuItemFileOpen;
     JMenuItem menuItemFileSave;
     JMenuItem menuItemFileSaveAs;
     JMenuItem menuItemFileExit;
     JMenuItem menuItemHelpAbout;
-
     JTable tableProgramChange;
-    JTable tableMidiChannel  ;
-    JTable tableMidiNote     ;
-    JTable tableTriggerInput ;
-
+    JTable tableMidiChannel;
+    JTable tableMidiNote;
+    JTable tableTriggerInput;
     TableModelProgramChange tableModelProgramChange;
     TableModelMidiChannel tableModelMidiChannel;
     TableModelMidiNote tableModelMidiNote;
     TableModelTriggerInput tableModelTriggerInput;
-
     JComboBox lovGain;
     JComboBox lovProgramChange;
     JComboBox lovRetrigger;
@@ -1060,20 +1062,14 @@ public class TriggerIOTool extends JFrame {
     JComboBox lovTriggerType;
     JComboBox lovVelocityCurve;
     JComboBox lovXTalk;
-
     boolean fileChanged;
-
     File currentFile;
-
     List<MidiDevice.Info> receivingDeviceInfos;
     List<MidiDevice.Info> transmittingDeviceInfos;
-    Device triggerIODevice;
-
+    DeviceMidi triggerIODevice;
     final static String OFFLINE = "OFFLINE";
-
     final ResourceBundle bundleVersion = ResourceBundle.getBundle("triggeriotool");
-    final FileNameExtensionFilter sysexFileNameExtensionFilter = new FileNameExtensionFilter(bundleVersion.getString("File.description"), bundleVersion.getString("File.extension"));
-    final String DEFAULTEXTENSION = bundleVersion.getString("File.extension");
-
+    final FileNameExtensionFilter fileNameExtensionFilter = new FileNameExtensionFilter(bundleVersion.getString("File.description"), bundleVersion.getString("File.xml"), bundleVersion.getString("File.sysex"));
+    final String DEFAULTEXTENSION = bundleVersion.getString("File.xml");
     String currentDirectory = System.getProperty("user.dir");
 }

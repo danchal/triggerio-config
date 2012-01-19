@@ -3,10 +3,10 @@
  * and open the template in the editor.
  */
 
-import Base.MidiNote;
+import Base.Input;
+import Base.Kit;
 import Midi.Common;
-import Midi.Device;
-import Midi.Kit;
+import Midi.DeviceMidi;
 import java.util.logging.Level;
 import javax.swing.table.AbstractTableModel;
 
@@ -20,11 +20,11 @@ public class TableModelMidiNote extends AbstractTableModel{
     private Object[][] data;
 
     public TableModelMidiNote() {
-        columnNames = new String[Device.COUNTKIT +1];
-        data        = new Object[Device.COUNTINPUT][Device.COUNTKIT +1];
+        columnNames = new String[DeviceMidi.COUNTKIT +1];
+        data        = new Object[DeviceMidi.COUNTINPUT][DeviceMidi.COUNTKIT +1];
 
         columnNames[0] = "Input";
-        for(int kitNumber=0; kitNumber<Device.COUNTKIT; kitNumber++){
+        for(int kitNumber=0; kitNumber<DeviceMidi.COUNTKIT; kitNumber++){
             columnNames[kitNumber+1] = "Kit-" + kitNumber;
         }
     }
@@ -64,18 +64,19 @@ public class TableModelMidiNote extends AbstractTableModel{
     }
 
     public int getRealValueAt(int row, int col){
-        return Common.getKey(data[row][col], MidiNote.lovTriggerMidiNote);
+        return Common.getKey(data[row][col], Input.lovNote);
     }
 
     public void load(Kit[] kits){
         for(Kit kit : kits){
             columnNames[kit.getKitNumber() + 1] = kit.getKitName();
-            for(MidiNote triggerMidiNote : kit.triggerMidiNote){
+
+            for(Input input : kit.inputs){
                 Common.logger.log(Level.FINEST,"kitNumber = <{0}" + ">"
-                        + ", inputNumber = <{1}" + ">" + ", value = <{2}>" , 
-                        new Object[]{kit.getKitNumber(), triggerMidiNote.getTriggerInputNumber(), triggerMidiNote.getTriggerMidiNote()});
-                data[triggerMidiNote.getTriggerInputNumber()][0] = "Input-" + triggerMidiNote.getTriggerInputNumber();
-                data[triggerMidiNote.getTriggerInputNumber()][kit.getKitNumber() + 1] = MidiNote.lovTriggerMidiNote.get(triggerMidiNote.getTriggerMidiNote());
+                        + ", inputNumber = <{1}" + ">" + ", value = <{2}>" ,
+                        new Object[]{kit.getKitNumber(), input.getinputNumber(), input.getNote()});
+                data[input.getinputNumber()][0] = "Input-" + input.getinputNumber();
+                data[input.getinputNumber()][kit.getKitNumber() + 1] = Input.lovNote.get(input.getNote());
             }
         }
     }
@@ -83,11 +84,11 @@ public class TableModelMidiNote extends AbstractTableModel{
     public Kit[] synchronise(Kit[] kitsIn){
         Kit[] kitsOut = kitsIn;
         for(Kit kit : kitsIn){
-            for(MidiNote triggerMidiNote : kit.triggerMidiNote){
+            for(Input input : kit.inputs){
                 Common.logger.log(Level.FINEST,"kitNumber = <{0}" + ">"
-                        + ", inputNumber = <{1}" + ">" + ", value = <{2}>" , new Object[]{kit.getKitNumber(), triggerMidiNote.getTriggerInputNumber(), triggerMidiNote.getTriggerMidiNote()});
-                int inputNumber = triggerMidiNote.getTriggerInputNumber();
-                kitsOut[kit.getKitNumber()].triggerMidiNote.get(inputNumber).setTriggerMidiNote(getRealValueAt(inputNumber, kit.getKitNumber()+1));
+                        + ", inputNumber = <{1}" + ">" + ", value = <{2}>" , new Object[]{kit.getKitNumber(), input.getinputNumber(), input.getNote()});
+                int inputNumber = input.getinputNumber();
+                kitsOut[kit.getKitNumber()].inputs.get(inputNumber).setNote(getRealValueAt(inputNumber, kit.getKitNumber()+1));
             }
         }
         return kitsOut;

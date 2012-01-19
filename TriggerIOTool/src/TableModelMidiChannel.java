@@ -5,10 +5,10 @@
 
 
 
-import Base.MidiChannel;
+import Base.Input;
+import Base.Kit;
 import Midi.Common;
-import Midi.Device;
-import Midi.Kit;
+import Midi.DeviceMidi;
 import java.util.logging.Level;
 import javax.swing.table.AbstractTableModel;
 
@@ -22,11 +22,11 @@ public class TableModelMidiChannel extends AbstractTableModel{
     private Object[][] data;
 
     public TableModelMidiChannel() {
-        columnNames = new String[Device.COUNTKIT +1];
-        data        = new Object[Device.COUNTINPUT][Device.COUNTKIT +1];
+        columnNames = new String[DeviceMidi.COUNTKIT +1];
+        data        = new Object[DeviceMidi.COUNTINPUT][DeviceMidi.COUNTKIT +1];
 
         columnNames[0] = "Input";
-        for(int kitNumber=0; kitNumber<Device.COUNTKIT; kitNumber++){
+        for(int kitNumber=0; kitNumber<DeviceMidi.COUNTKIT; kitNumber++){
             columnNames[kitNumber+1] = "Kit-" + kitNumber;
         }
     }
@@ -66,17 +66,18 @@ public class TableModelMidiChannel extends AbstractTableModel{
     }
 
     public int getRealValueAt(int row, int col){
-        return Common.getKey(data[row][col], MidiChannel.lovTriggerMidiChannel);
-    }    
+        return Common.getKey(data[row][col], Input.lovChannel);
+    }
 
     public void load(Kit[] kits){
         for(Kit kit : kits){
             columnNames[kit.getKitNumber() + 1] = kit.getKitName();
-            for(MidiChannel triggerMidiChannel : kit.triggerMidiChannel){
+
+            for(Input input : kit.inputs){
                 Common.logger.log(Level.FINEST,"kitNumber = <{0}" + ">"
-                        + ", inputNumber = <{1}" + ">" + ", value = <{2}>" , new Object[]{kit.getKitNumber(), triggerMidiChannel.getTriggerInputNumber(), triggerMidiChannel.getTriggerMidiChannel()});
-                data[triggerMidiChannel.getTriggerInputNumber()][0] = "Input-" + triggerMidiChannel.getTriggerInputNumber();
-                data[triggerMidiChannel.getTriggerInputNumber()][kit.getKitNumber() + 1] = MidiChannel.lovTriggerMidiChannel.get(triggerMidiChannel.getTriggerMidiChannel());
+                        + ", inputNumber = <{1}" + ">" + ", value = <{2}>" , new Object[]{kit.getKitNumber(), input.getinputNumber(), input.getChannel()});
+                data[input.getinputNumber()][0] = "Input-" + input.getinputNumber();
+                data[input.getinputNumber()][kit.getKitNumber() + 1] = Input.lovChannel.get(input.getChannel());
             }
         }
     }
@@ -85,11 +86,12 @@ public class TableModelMidiChannel extends AbstractTableModel{
         Kit[] kitsOut = kitsIn;
 
         for(Kit kit : kitsIn){
-            for(MidiChannel triggerMidiChannel : kit.triggerMidiChannel){
+
+            for(Input input : kit.inputs){
                 Common.logger.log(Level.FINEST,"kitNumber = <{0}" + ">"
-                        + ", inputNumber = <{1}" + ">" + ", value = <{2}>" , new Object[]{kit.getKitNumber(), triggerMidiChannel.getTriggerInputNumber(), triggerMidiChannel.getTriggerMidiChannel()});
-                int inputNumber = triggerMidiChannel.getTriggerInputNumber();
-                kitsOut[kit.getKitNumber()].triggerMidiChannel.get(inputNumber).setTriggerMidiChannel(getRealValueAt(inputNumber, kit.getKitNumber()+1));
+                        + ", inputNumber = <{1}" + ">" + ", value = <{2}>" , new Object[]{kit.getKitNumber(), input.getinputNumber(), input.getChannel()});
+                int inputNumber = input.getinputNumber();
+                kitsOut[kit.getKitNumber()].inputs.get(inputNumber).setChannel(getRealValueAt(inputNumber, kit.getKitNumber()+1));
             }
         }
         return kitsOut;
