@@ -21,16 +21,14 @@ public class LogFormat extends Formatter {
     /**
      * A Custom format implementation that is designed for brevity.
      */
-    public LogFormat(){
+    //---------------------------------------------------------------------
+    public LogFormat() {
         super();
     }
-    
-    public String format(LogRecord record) {        
-        StringBuilder output = new StringBuilder().append("[").append(record.getLevel())
-                .append('|').append(record.getSourceClassName()).append(".")
-                .append(record.getSourceMethodName()).append("]: ")
-                .append(formatMessage(record)).append(' ').append(lineSep);
+
+    //---------------------------------------------------------------------
+    public String format(LogRecord record) {
+        StringBuilder output = new StringBuilder().append("[").append(record.getLevel()).append('|').append(record.getSourceClassName()).append(".").append(record.getSourceMethodName()).append("]: ").append(formatMessage(record)).append(' ').append(lineSep);
         return output.toString();
     }
 }
-

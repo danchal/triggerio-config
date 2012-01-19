@@ -4,6 +4,7 @@
  */
 package Midi;
 
+import Base.GlobalInput;
 import java.util.logging.Level;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.SysexMessage;
@@ -12,47 +13,34 @@ import javax.sound.midi.SysexMessage;
  *
  * @author DrumTrigger
  */
-public class Input extends Base.Input{
-
+public class GlobalInputMidi extends GlobalInput {
 
     public static final int INPUTMESSAGELENGTH = 17;
     public static final int INPUTNUMBERPOSITION = 9;
-
     public static Exception validationFailed;
-    
-    private static final byte[] HEADER = { 
-             0x00
-            ,0x00
-            ,0x0E
-            ,0x2C
-            ,0x0D
-            ,0x00
-            ,0x00
-            ,0x0A
-            ,0x02};
-    
+    private static final byte[] HEADER = {
+        0x00, 0x00, 0x0E, 0x2C, 0x0D, 0x00, 0x00, 0x0A, 0x02};
+
     //----------------------------------------------
-    public Input(int triggerInputNumber, String triggerInputName,
+    public GlobalInputMidi(int triggerInputNumber, String triggerInputName,
             int gain, int velocityCurve, int threshold,
             int xTalk, int retrigger, int triggerType) {
-        
+
         super(triggerInputNumber, triggerInputName,
-            gain, velocityCurve, threshold,
-            xTalk, retrigger, triggerType);
+                gain, velocityCurve, threshold,
+                xTalk, retrigger, triggerType);
     }
-    
+
     //----------------------------------------------
-    public Input(byte[] data) throws UserException {
-        super();
-        
+    public GlobalInputMidi(byte[] data) throws UserException {
         Common.logger.finer("begin");
 
-        if (Validate(data)){
+        if (Validate(data)) {
             Common.logger.finer("validated OK");
-            
-            setTriggerInputNumber(Common.unsignedByteToInt(data[INPUTNUMBERPOSITION]));
-            
-            setTriggerInputName(getInputName(Common.unsignedByteToInt(data[INPUTNUMBERPOSITION])));
+
+            int inputNumber = Common.unsignedByteToInt(data[INPUTNUMBERPOSITION]);
+            setTriggerInputNumber(inputNumber);
+            setTriggerInputName("Input-" + String.valueOf((inputNumber / 2) + 1) + (inputNumber % 2 == 0 ? "T" : "R"));
 
             setGain(Common.unsignedByteToInt(data[10]));
             setVelocityCurve(Common.unsignedByteToInt(data[11]));
@@ -60,27 +48,25 @@ public class Input extends Base.Input{
             setXTalk(Common.unsignedByteToInt(data[13]));
             setRetrigger(Common.unsignedByteToInt(data[14]));
             setTriggerType(Common.unsignedByteToInt(data[15]));
-        }
-        else{
+        } else {
             Common.logger.log(Level.SEVERE, "Failed Validation Check <{0}>", Common.printMessage(data));
             throw new UserException("Kit validation failed");
         }
     }
 
-    public static boolean Validate( byte [] data){
-        return (
-                    (data[0]==HEADER[0]) &&
-                    (data[1]==HEADER[1]) &&
-                    (data[2]==HEADER[2]) &&
-                    (data[3]==HEADER[3]) &&
-                    (data[4]==HEADER[4]) &&
-                    (data[5]==HEADER[5]) &&
-                    (data[6]==HEADER[6]) &&
-                    (data[7]==HEADER[7]) &&
-                    (data[8]==HEADER[8])
-                    );
-    }    
-    
+    //---------------------------------------------------------------------
+    public static boolean Validate(byte[] data) {
+        return ((data[0] == HEADER[0])
+                && (data[1] == HEADER[1])
+                && (data[2] == HEADER[2])
+                && (data[3] == HEADER[3])
+                && (data[4] == HEADER[4])
+                && (data[5] == HEADER[5])
+                && (data[6] == HEADER[6])
+                && (data[7] == HEADER[7])
+                && (data[8] == HEADER[8]));
+    }
+
     //----------------------------------------------
     public SysexMessage getSysexMessage() throws InvalidMidiDataException {
         SysexMessage sysexMessage = new SysexMessage();

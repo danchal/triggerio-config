@@ -21,21 +21,21 @@ public class DownloadReceiver implements Receiver {
      *
      */
     private static final long serialVersionUID = 1L;
-
-    public Kit[] kits = new Kit[Device.COUNTKIT];
-    public Input[] triggerInputs = new Input[Device.COUNTINPUT];
+    public KitMidi[] kits = new KitMidi[DeviceMidi.COUNTKIT];
+    public GlobalInputMidi[] triggerInputs = new GlobalInputMidi[DeviceMidi.COUNTINPUT];
     public List<byte[]> midiMessages = new ArrayList<byte[]>();
 
+    //---------------------------------------------------------------------
     public void send(MidiMessage message, long timeStamp) {
-        if (message.getStatus() == 0xF0 || message.getStatus() == 0xF7){
+        if (message.getStatus() == 0xF0 || message.getStatus() == 0xF7) {
             SysexMessage sysexMessage = (SysexMessage) message;
             midiMessages.add(sysexMessage.getData());
-        }
-        else{
+        } else {
             Common.logger.log(Level.INFO, "Not a sysex message? <{0}>", message.getStatus());
         }
     }
 
+    //---------------------------------------------------------------------
     public void close() {
         Common.logger.log(Level.FINE, "Message count=<{0}>", midiMessages.size());
 
@@ -43,13 +43,13 @@ public class DownloadReceiver implements Receiver {
 
             Common.logger.finer(Common.printMessage(data));
 
-            try{
+            try {
                 switch (data.length) {
-                    case Kit.KITMESSAGELENGTH:
-                        kits[Common.unsignedByteToInt(data[Kit.KITNUMBERPOSITION])] = new Kit(data);
+                    case KitMidi.KITMESSAGELENGTH:
+                        kits[Common.unsignedByteToInt(data[KitMidi.KITNUMBERPOSITION])] = new KitMidi(data);
                         break;
-                    case Input.INPUTMESSAGELENGTH:
-                        triggerInputs[Common.unsignedByteToInt(data[Kit.KITNUMBERPOSITION])] = new Input(data);
+                    case GlobalInputMidi.INPUTMESSAGELENGTH:
+                        triggerInputs[Common.unsignedByteToInt(data[KitMidi.KITNUMBERPOSITION])] = new GlobalInputMidi(data);
                         break;
                     default:
                         Common.logger.severe("Unrecognised message length");

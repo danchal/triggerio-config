@@ -6,20 +6,20 @@ import java.util.logging.Level;
 import javax.sound.midi.*;
 
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * To change this template, choose Tools | Templates and open the template in
+ * the editor.
  */
 /**
  *
  * @author DrumTrigger
  */
-public class Common extends Base.Common{
+public class Common extends Base.Common {
 
     //----------------------------------------------
     public Common() {
     }
 
-    public static String printMessage(byte[] message){
+    public static String printMessage(byte[] message) {
         String msg = "length = <" + message.length + ">";
         for (int i = 0; i < message.length; i++) {
             msg = msg + ", data[" + i + "] = <" + unsignedByteToInt(message[i]) + ">";
@@ -67,18 +67,17 @@ public class Common extends Base.Common{
                 MidiDevice testDevice = MidiSystem.getMidiDevice(allDevices[i]);
 
                 Common.logger.fine(
-                                     testDevice.getDeviceInfo()
+                        testDevice.getDeviceInfo()
                         + ", " + allDevices[i].getName()
                         + ", " + allDevices[i].getDescription()
                         + ", " + allDevices[i].getVendor()
                         + ", " + allDevices[i].getVersion());
 
-                if (  !(testDevice instanceof Sequencer || testDevice instanceof Synthesizer)
-                        && (   (typeTansmitter && testDevice.getMaxTransmitters() != 0)
-                                || (!typeTansmitter && testDevice.getMaxReceivers() != 0) )) {
+                if (!(testDevice instanceof Sequencer || testDevice instanceof Synthesizer)
+                        && ((typeTansmitter && testDevice.getMaxTransmitters() != 0)
+                        || (!typeTansmitter && testDevice.getMaxReceivers() != 0))) {
                     deviceInfos.add(allDevices[i]);
-                }
-                else{
+                } else {
                     Common.logger.fine("Device excluded");
                 }
             } catch (MidiUnavailableException ex) {
