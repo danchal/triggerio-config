@@ -3,10 +3,10 @@
  * and open the template in the editor.
  */
 
-import Base.Kit;
 import Midi.Common;
 import Midi.DeviceMidi;
 import Midi.KitMidi;
+import java.util.List;
 import java.util.logging.Level;
 import javax.swing.table.AbstractTableModel;
 
@@ -56,8 +56,8 @@ public class TableModelProgramChange extends AbstractTableModel{
         fireTableCellUpdated(row, col);
     }
 
-    public void load(Kit[] kits){
-        for(Kit kit : kits){
+    public void load(List <KitMidi> kits){
+        for(KitMidi kit : kits){
             Common.logger.log(Level.FINEST, "kitNumber = <{0}>, value = <{1}>", new Object[]{kit.getKitNumber(), kit.getProgramChange()});
             data[0][kit.getKitNumber()] = KitMidi.lovProgramChange.get(kit.getProgramChange());
         }
@@ -66,16 +66,4 @@ public class TableModelProgramChange extends AbstractTableModel{
     public int getRealValueAt(int row, int col){
         return Common.getKey(data[row][col], KitMidi.lovProgramChange);
     }
-
-    public Kit[] synchronise(Kit[] kits){
-        Kit[] kitsOut = kits;
-        for(Kit kit : kits){
-            Common.logger.log(Level.FINEST,"KitNumber = <{0}" + ">" + ", value = <{1}>", new Object[]{kit.getKitNumber(), kit.getProgramChange()});
-
-            kitsOut[kit.getKitNumber()].setProgramChange(getRealValueAt(0, kit.getKitNumber()));
-        }
-
-        return kitsOut;
-    }
-
 }

@@ -4,7 +4,7 @@
  */
 package Midi;
 
-import Base.Device;
+import Base.DeviceAbstract;
 import java.io.*;
 import java.util.logging.Level;
 import javax.sound.midi.*;
@@ -18,24 +18,26 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 /**
  *
  * @author DrumTrigger
  */
-public class DeviceMidi extends Device {
+public class DeviceMidi extends DeviceAbstract<KitMidi, GlobalInputMidi>  {
 
     private MidiDevice midiDevice;
     protected static Exception exBadByteLength;
+    public static final int COUNTKIT = 21;
+    public static final int COUNTINPUT = 21;
 
     //---------------------------------------------------------------------
     public DeviceMidi() {
-        super();
     }
 
     //----------------------------------------------
-    public DeviceMidi(File sysexFile) throws UserException, Exception {
+    public DeviceMidi(File sysexFile) throws UserException, FileNotFoundException, IOException {
         importSysex(sysexFile);
     }
 
@@ -74,24 +76,26 @@ public class DeviceMidi extends Device {
     public void sendtKit(int kitNumber) throws MidiUnavailableException, InvalidMidiDataException {
         Receiver receiver = midiDevice.getReceiver();
         sendtKit(kitNumber, receiver);
+        receiver.close();
     }
 
     //---------------------------------------------------------------------
     public void sendtKit(int kitNumber, Receiver receiver) throws InvalidMidiDataException {
         Common.logger.log(Level.FINE, "Sending kitNumber=<{0}>", kitNumber);
-        receiver.send(KitMidi.getSysexMessage(kits[kitNumber]), -1);
+        receiver.send(kits.get(kitNumber).getSysexMessage(), -1);
     }
 
     //---------------------------------------------------------------------
     public void sendTriggerInput(int inputNumber) throws MidiUnavailableException, InvalidMidiDataException {
         Receiver receiver = midiDevice.getReceiver();
         sendTriggerInput(inputNumber, receiver);
+        receiver.close();
     }
 
     //---------------------------------------------------------------------
     public void sendTriggerInput(int inputNumber, Receiver receiver) throws InvalidMidiDataException {
         Common.logger.log(Level.FINE, "Sending inputNumber=<{0}>", inputNumber);
-        receiver.send(((GlobalInputMidi) (globalInputs[inputNumber])).getSysexMessage(), -1);
+        receiver.send(globalInputs.get(inputNumber).getSysexMessage(), -1);
     }
 
     //---------------------------------------------------------------------
@@ -99,12 +103,12 @@ public class DeviceMidi extends Device {
         Common.logger.fine("begin");
         Receiver receiver = midiDevice.getReceiver();
 
-        for (int kitNumber = 0; kitNumber < kits.length; kitNumber++) {
-            sendtKit(kitNumber, receiver);
+        for (KitMidi kit : kits){
+            sendtKit(kit.getKitNumber(), receiver);
         }
 
-        for (int inputNumber = 0; inputNumber < globalInputs.length; inputNumber++) {
-            sendTriggerInput(inputNumber, receiver);
+        for (GlobalInputMidi globalInput : globalInputs){
+            sendTriggerInput(globalInput.getTriggerInputNumber(), receiver);
         }
 
         receiver.close();
@@ -158,13 +162,14 @@ public class DeviceMidi extends Device {
         Common.logger.fine("begin");
         DataOutputStream outputStream = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
 
-        for (int kitNumber = 0; kitNumber < kits.length; kitNumber++) {
+        for (KitMidi kit : kits) {
             outputStream.write(0xF0);
-            outputStream.write(KitMidi.getByteMessage(kits[kitNumber]));
+            outputStream.write(kit.getByteMessage());
         }
-        for (int inputNumber = 0; inputNumber < globalInputs.length; inputNumber++) {
+
+        for (GlobalInputMidi globalInput : globalInputs) {
             outputStream.write(0xF0);
-            outputStream.write(((GlobalInputMidi) (globalInputs[inputNumber])).getByteMessage(), 0, GlobalInputMidi.INPUTMESSAGELENGTH);
+            outputStream.write(globalInput.getByteMessage(), 0, GlobalInputMidi.INPUTMESSAGELENGTH);
         }
 
         outputStream.close();
@@ -182,7 +187,7 @@ public class DeviceMidi extends Device {
     }
 
     //----------------------------------------------
-    public final void importSysex(File sysexFile) throws UserException, FileNotFoundException, Exception {
+    public final void importSysex(File sysexFile) throws UserException, FileNotFoundException, IOException {
         Common.logger.finer("begin");
 
         DataInputStream inputStream;
@@ -195,20 +200,35 @@ public class DeviceMidi extends Device {
 
         Common.logger.finer("build kits");
 
+        kits.clear();
+
         // build kits
         for (int kitNumber = 0; kitNumber < DeviceMidi.COUNTKIT; kitNumber++) {
             Common.logger.log(Level.FINER, "kitNumber<{0}>, Status<{1}>", new Object[]{kitNumber, Common.unsignedByteToInt(inputStream.readByte())}); //0xF0
-            kits[kitNumber] = new KitMidi(readStream(inputStream, KitMidi.KITMESSAGELENGTH));
+            kits.add(kitNumber, new KitMidi(readStream(inputStream, KitMidi.KITMESSAGELENGTH)));
         }
 
         Common.logger.finer("build inputs");
 
+        globalInputs.clear();
+
+        // build inputs
         for (int inputNumber = 0; inputNumber < DeviceMidi.COUNTINPUT; inputNumber++) {
             Common.logger.log(Level.FINER, "inputNumber<{0}>, Status<{1}>", new Object[]{inputNumber, Common.unsignedByteToInt(inputStream.readByte())}); //0xF0
-            globalInputs[inputNumber] = new GlobalInputMidi(readStream(inputStream, GlobalInputMidi.INPUTMESSAGELENGTH));
+            globalInputs.add(inputNumber, new GlobalInputMidi(readStream(inputStream, GlobalInputMidi.INPUTMESSAGELENGTH)));
         }
 
         inputStream.close();
         Common.logger.finer("end");
+    }
+
+    @Override
+    protected void addKit(Element element, int i) {
+        kits.add(i, new KitMidi(element));
+    }
+
+    @Override
+    protected void addGlobalInput(Element element, int i) {
+        globalInputs.add(i, new GlobalInputMidi(element));
     }
 }

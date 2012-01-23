@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.SysexMessage;
+import org.w3c.dom.Element;
 
 /**
  *
@@ -36,12 +37,14 @@ public class KitMidi extends Kit {
                 && (data[8] == HEADER[8]));
     }
 
-
     //----------------------------------------------
     public KitMidi() {
         super();
     }
 
+    public KitMidi(Element element) {
+        super(element);
+    }
 
     //----------------------------------------------
     public KitMidi(byte[] data) throws UserException {
@@ -69,27 +72,27 @@ public class KitMidi extends Kit {
     }
 
     //----------------------------------------------
-    public static SysexMessage getSysexMessage(Kit kit) throws InvalidMidiDataException {
+    public SysexMessage getSysexMessage() throws InvalidMidiDataException {
         SysexMessage sysexMessage = new SysexMessage();
-        sysexMessage.setMessage(0xF0, getByteMessage(kit), KITMESSAGELENGTH);
+        sysexMessage.setMessage(0xF0, getByteMessage(), KITMESSAGELENGTH);
 
         return sysexMessage;
     }
 
     //----------------------------------------------
-    public static byte[] getByteMessage(Kit kit) {
+    public byte[] getByteMessage() {
         int[] intMidiMessage = new int[KITMESSAGELENGTH];
-        boolean xFlap = (kit.getKitNumber() != 20);
+        boolean xFlap = (this.getKitNumber() != 20);
         int offset1, offset2;
 
-        if (kit.getProgramChange() == NOPROGRAMCHANGE) {
+        if (this.getProgramChange() == NOPROGRAMCHANGE) {
             Common.logger.finest("NOPROGRAMCHANGE");
             offset1 = 1;
             offset2 = 127;
         } else {
             Common.logger.finest("program change set");
             offset1 = 0;
-            offset2 = kit.getProgramChange();
+            offset2 = this.getProgramChange();
         }
 
         intMidiMessage[0] = HEADER[0];
@@ -101,70 +104,70 @@ public class KitMidi extends Kit {
         intMidiMessage[6] = HEADER[6];
         intMidiMessage[7] = HEADER[7];
         intMidiMessage[8] = HEADER[8];
-        intMidiMessage[9] = kit.getKitNumber();
+        intMidiMessage[9] = this.getKitNumber();
 
-        intMidiMessage[10] = kit.inputs.get(0).getChannel();
-        intMidiMessage[11] = kit.inputs.get(0).getNote();
+        intMidiMessage[10] = this.inputs.get(0).getChannel();
+        intMidiMessage[11] = this.inputs.get(0).getNote();
         intMidiMessage[12] = xFlap ? 3 : 0;
-        intMidiMessage[13] = kit.inputs.get(1).getChannel();
-        intMidiMessage[14] = kit.inputs.get(1).getNote();
+        intMidiMessage[13] = this.inputs.get(1).getChannel();
+        intMidiMessage[14] = this.inputs.get(1).getNote();
         intMidiMessage[15] = xFlap ? 3 : 6;
-        intMidiMessage[16] = kit.inputs.get(2).getChannel();
-        intMidiMessage[17] = kit.inputs.get(2).getNote();
+        intMidiMessage[16] = this.inputs.get(2).getChannel();
+        intMidiMessage[17] = this.inputs.get(2).getNote();
         intMidiMessage[18] = xFlap ? 3 : 13;
-        intMidiMessage[19] = kit.inputs.get(3).getChannel();
-        intMidiMessage[20] = kit.inputs.get(3).getNote();
+        intMidiMessage[19] = this.inputs.get(3).getChannel();
+        intMidiMessage[20] = this.inputs.get(3).getNote();
         intMidiMessage[21] = xFlap ? 3 : 19;
-        intMidiMessage[22] = kit.inputs.get(4).getChannel();
-        intMidiMessage[23] = kit.inputs.get(4).getNote();
+        intMidiMessage[22] = this.inputs.get(4).getChannel();
+        intMidiMessage[23] = this.inputs.get(4).getNote();
         intMidiMessage[24] = xFlap ? 3 : 26;
-        intMidiMessage[25] = kit.inputs.get(5).getChannel();
-        intMidiMessage[26] = kit.inputs.get(5).getNote();
+        intMidiMessage[25] = this.inputs.get(5).getChannel();
+        intMidiMessage[26] = this.inputs.get(5).getNote();
         intMidiMessage[27] = xFlap ? 3 : 33;
-        intMidiMessage[28] = kit.inputs.get(6).getChannel();
-        intMidiMessage[29] = kit.inputs.get(6).getNote();
+        intMidiMessage[28] = this.inputs.get(6).getChannel();
+        intMidiMessage[29] = this.inputs.get(6).getNote();
         intMidiMessage[30] = xFlap ? 3 : 39;
-        intMidiMessage[31] = kit.inputs.get(7).getChannel();
-        intMidiMessage[32] = kit.inputs.get(7).getNote();
+        intMidiMessage[31] = this.inputs.get(7).getChannel();
+        intMidiMessage[32] = this.inputs.get(7).getNote();
         intMidiMessage[33] = xFlap ? 3 : 46;
-        intMidiMessage[34] = kit.inputs.get(8).getChannel();
-        intMidiMessage[35] = kit.inputs.get(8).getNote();
+        intMidiMessage[34] = this.inputs.get(8).getChannel();
+        intMidiMessage[35] = this.inputs.get(8).getNote();
         intMidiMessage[36] = xFlap ? 3 : 53;
-        intMidiMessage[37] = kit.inputs.get(9).getChannel();
-        intMidiMessage[38] = kit.inputs.get(9).getNote();
+        intMidiMessage[37] = this.inputs.get(9).getChannel();
+        intMidiMessage[38] = this.inputs.get(9).getNote();
         intMidiMessage[39] = xFlap ? 3 : 59;
-        intMidiMessage[40] = kit.inputs.get(10).getChannel();
-        intMidiMessage[41] = kit.inputs.get(10).getNote();
+        intMidiMessage[40] = this.inputs.get(10).getChannel();
+        intMidiMessage[41] = this.inputs.get(10).getNote();
         intMidiMessage[42] = xFlap ? 3 : 66;
-        intMidiMessage[43] = kit.inputs.get(11).getChannel();
-        intMidiMessage[44] = kit.inputs.get(11).getNote();
+        intMidiMessage[43] = this.inputs.get(11).getChannel();
+        intMidiMessage[44] = this.inputs.get(11).getNote();
         intMidiMessage[45] = xFlap ? 3 : 72;
-        intMidiMessage[46] = kit.inputs.get(12).getChannel();
-        intMidiMessage[47] = kit.inputs.get(12).getNote();
+        intMidiMessage[46] = this.inputs.get(12).getChannel();
+        intMidiMessage[47] = this.inputs.get(12).getNote();
         intMidiMessage[48] = xFlap ? 3 : 79;
-        intMidiMessage[49] = kit.inputs.get(13).getChannel();
-        intMidiMessage[50] = kit.inputs.get(13).getNote();
+        intMidiMessage[49] = this.inputs.get(13).getChannel();
+        intMidiMessage[50] = this.inputs.get(13).getNote();
         intMidiMessage[51] = xFlap ? 3 : 86;
-        intMidiMessage[52] = kit.inputs.get(14).getChannel();
-        intMidiMessage[53] = kit.inputs.get(14).getNote();
+        intMidiMessage[52] = this.inputs.get(14).getChannel();
+        intMidiMessage[53] = this.inputs.get(14).getNote();
         intMidiMessage[54] = xFlap ? 3 : 92;
-        intMidiMessage[55] = kit.inputs.get(15).getChannel();
-        intMidiMessage[56] = kit.inputs.get(15).getNote();
+        intMidiMessage[55] = this.inputs.get(15).getChannel();
+        intMidiMessage[56] = this.inputs.get(15).getNote();
         intMidiMessage[57] = xFlap ? 3 : 99;
-        intMidiMessage[58] = kit.inputs.get(16).getChannel();
-        intMidiMessage[59] = kit.inputs.get(16).getNote();
+        intMidiMessage[58] = this.inputs.get(16).getChannel();
+        intMidiMessage[59] = this.inputs.get(16).getNote();
         intMidiMessage[60] = xFlap ? 3 : 106;
-        intMidiMessage[61] = kit.inputs.get(17).getChannel();
-        intMidiMessage[62] = kit.inputs.get(17).getNote();
+        intMidiMessage[61] = this.inputs.get(17).getChannel();
+        intMidiMessage[62] = this.inputs.get(17).getNote();
         intMidiMessage[63] = xFlap ? 3 : 112;
-        intMidiMessage[64] = kit.inputs.get(18).getChannel();
-        intMidiMessage[65] = kit.inputs.get(18).getNote();
+        intMidiMessage[64] = this.inputs.get(18).getChannel();
+        intMidiMessage[65] = this.inputs.get(18).getNote();
         intMidiMessage[66] = xFlap ? 3 : 119;
-        intMidiMessage[67] = kit.inputs.get(19).getChannel();
-        intMidiMessage[68] = kit.inputs.get(19).getNote();
+        intMidiMessage[67] = this.inputs.get(19).getChannel();
+        intMidiMessage[68] = this.inputs.get(19).getNote();
         intMidiMessage[69] = xFlap ? 3 : 126;
-        intMidiMessage[70] = kit.inputs.get(20).getChannel();
-        intMidiMessage[71] = kit.inputs.get(20).getNote();
+        intMidiMessage[70] = this.inputs.get(20).getChannel();
+        intMidiMessage[71] = this.inputs.get(20).getNote();
         intMidiMessage[72] = xFlap ? 3 : 127;
         intMidiMessage[73] = 42;
         intMidiMessage[74] = offset1;

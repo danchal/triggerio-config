@@ -1,5 +1,4 @@
 
-import Base.GlobalInput;
 import Base.Input;
 import Midi.*;
 import java.awt.*;
@@ -592,6 +591,7 @@ public class TriggerIOTool extends JFrame {
                 case JOptionPane.OK_OPTION:
 
                     if (!receiver.midiMessages.isEmpty()) {
+
                         triggerIODevice.kits = receiver.kits;
                         triggerIODevice.globalInputs = receiver.triggerInputs;
 
@@ -690,6 +690,7 @@ public class TriggerIOTool extends JFrame {
                 triggerIODevice.importSysex(currentFile);
 
             } else {
+                Common.logger.log(Level.INFO, "File type not recognised");
                 throw new Exception();
             }
 
@@ -700,6 +701,7 @@ public class TriggerIOTool extends JFrame {
             Common.logger.log(Level.INFO, "File opened <{0}>", currentFile.toString());
 
         } catch (Exception ex) {
+            Common.logger.log(Level.SEVERE, "Exception <{0}>", ex.getMessage());
             JOptionPane.showMessageDialog(this, "Invalid File", "Open File", JOptionPane.ERROR_MESSAGE);
             fileStatus(false);
             chooseFile();
@@ -814,25 +816,31 @@ public class TriggerIOTool extends JFrame {
 
     //-----------------------------------------------------------
     public void loadTables() {
-        synchroniseTablesToDevice();
-        for (GlobalInput triggerInput : triggerIODevice.globalInputs) {
+        tableModelProgramChange.load(triggerIODevice.kits);
+        tableModelMidiChannel.load(triggerIODevice.kits);
+        tableModelMidiNote.load(triggerIODevice.kits);
+        tableModelTriggerInput.load(triggerIODevice.globalInputs);
+
+        for (GlobalInputMidi triggerInput : triggerIODevice.globalInputs) {
             tableMidiChannel.setValueAt(triggerInput.getTriggerInputName(), triggerInput.getTriggerInputNumber(), 0);
             tableMidiNote.setValueAt(triggerInput.getTriggerInputName(), triggerInput.getTriggerInputNumber(), 0);
         }
+
+        this.repaint();
 
         Common.logger.fine("end");
     }
 
     //-----------------------------------------------------------
     private void tableChangedProgramChange(TableModelEvent evt) {
-        triggerIODevice.kits[evt.getColumn()].setProgramChange(tableModelProgramChange.getRealValueAt(evt.getFirstRow(), evt.getColumn()));
+        triggerIODevice.kits.get(evt.getColumn()).setProgramChange(tableModelProgramChange.getRealValueAt(evt.getFirstRow(), evt.getColumn()));
         updateDrumKit(evt.getColumn());
     }
 
     //-----------------------------------------------------------
     private void tableChangedMidiChannel(TableModelEvent evt) {
         if (evt.getColumn() != 0) {
-            triggerIODevice.kits[evt.getColumn() - 1].inputs.get(evt.getFirstRow()).setChannel(tableModelMidiChannel.getRealValueAt(evt.getFirstRow(), evt.getColumn()));
+            triggerIODevice.kits.get(evt.getColumn()).inputs.get(evt.getFirstRow()).setChannel(tableModelMidiChannel.getRealValueAt(evt.getFirstRow(), evt.getColumn()));
             updateDrumKit(evt.getColumn() - 1);
         }
     }
@@ -840,14 +848,14 @@ public class TriggerIOTool extends JFrame {
     //-----------------------------------------------------------
     private void tableChangedMidiNote(TableModelEvent evt) {
         if (evt.getColumn() != 0) {
-            triggerIODevice.kits[evt.getColumn() - 1].inputs.get(evt.getFirstRow()).setNote(tableModelMidiNote.getRealValueAt(evt.getFirstRow(), evt.getColumn()));
+            triggerIODevice.kits.get(evt.getColumn()).inputs.get(evt.getFirstRow()).setNote(tableModelMidiNote.getRealValueAt(evt.getFirstRow(), evt.getColumn()));
             updateDrumKit(evt.getColumn() - 1);
         }
     }
 
     //-----------------------------------------------------------
     private void tableChangedTriggerInput(TableModelEvent evt) {
-        triggerIODevice.globalInputs[evt.getFirstRow()] = tableModelTriggerInput.getTriggerInput(evt.getFirstRow());
+        triggerIODevice.globalInputs.set(evt.getFirstRow(), tableModelTriggerInput.getTriggerInput(evt.getFirstRow()));
 
         if (evt.getColumn() != 0) {
             updateTriggerInput(evt.getFirstRow());
@@ -930,7 +938,6 @@ public class TriggerIOTool extends JFrame {
                 switch (option) {
                     case JOptionPane.OK_OPTION:
                         try {
-                            synchroniseDeviceToTables();
                             triggerIODevice.send();
                         } catch (InvalidMidiDataException ex) {
                             Common.logger.severe(ex.toString());
@@ -948,25 +955,6 @@ public class TriggerIOTool extends JFrame {
                 chooseFile();
             }
         }
-    }
-
-    //-----------------------------------------------------------
-    private void synchroniseDeviceToTables() {
-        Common.logger.fine("synchroniseDeviceToTables");
-        triggerIODevice.kits  =tableModelProgramChange.synchronise(triggerIODevice.kits);
-        triggerIODevice.kits = tableModelMidiChannel.synchronise(triggerIODevice.kits);
-        triggerIODevice.kits = tableModelMidiNote.synchronise(triggerIODevice.kits);
-        triggerIODevice.globalInputs = tableModelTriggerInput.synchronise(triggerIODevice.globalInputs);
-    }
-
-    //-----------------------------------------------------------
-    private void synchroniseTablesToDevice() {
-        Common.logger.fine("synchroniseTablesToDevice");
-        tableModelProgramChange.load(triggerIODevice.kits);
-        tableModelMidiChannel.load(triggerIODevice.kits);
-        tableModelMidiNote.load(triggerIODevice.kits);
-        tableModelTriggerInput.load(triggerIODevice.globalInputs);
-        this.repaint();
     }
 
     //-----------------------------------------------------------

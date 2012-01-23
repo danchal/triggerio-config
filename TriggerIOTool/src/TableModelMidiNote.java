@@ -4,9 +4,10 @@
  */
 
 import Base.Input;
-import Base.Kit;
 import Midi.Common;
 import Midi.DeviceMidi;
+import Midi.KitMidi;
+import java.util.List;
 import java.util.logging.Level;
 import javax.swing.table.AbstractTableModel;
 
@@ -67,8 +68,8 @@ public class TableModelMidiNote extends AbstractTableModel{
         return Common.getKey(data[row][col], Input.lovNote);
     }
 
-    public void load(Kit[] kits){
-        for(Kit kit : kits){
+    public void load(List <KitMidi> kits){
+        for(KitMidi kit : kits){
             columnNames[kit.getKitNumber() + 1] = kit.getKitName();
 
             for(Input input : kit.inputs){
@@ -79,18 +80,5 @@ public class TableModelMidiNote extends AbstractTableModel{
                 data[input.getinputNumber()][kit.getKitNumber() + 1] = Input.lovNote.get(input.getNote());
             }
         }
-    }
-
-    public Kit[] synchronise(Kit[] kitsIn){
-        Kit[] kitsOut = kitsIn;
-        for(Kit kit : kitsIn){
-            for(Input input : kit.inputs){
-                Common.logger.log(Level.FINEST,"kitNumber = <{0}" + ">"
-                        + ", inputNumber = <{1}" + ">" + ", value = <{2}>" , new Object[]{kit.getKitNumber(), input.getinputNumber(), input.getNote()});
-                int inputNumber = input.getinputNumber();
-                kitsOut[kit.getKitNumber()].inputs.get(inputNumber).setNote(getRealValueAt(inputNumber, kit.getKitNumber()+1));
-            }
-        }
-        return kitsOut;
     }
 }

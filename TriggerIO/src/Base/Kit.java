@@ -30,7 +30,7 @@ public class Kit {
     private String kitName;
     private int kitNumber;
     private int programChange;
-    public List<Input> inputs;
+    public List<Input> inputs = new ArrayList<Input>();
 
     //---------------------------------------------------------------------
     static {
@@ -39,11 +39,6 @@ public class Kit {
 
     //---------------------------------------------------------------------
     protected Kit() {
-    }
-
-    //----------------------------------------------
-    public Kit(int kitNumber, String kitName, int programChange,
-            List<Input> inputs) {
     }
 
     //----------------------------------------------
@@ -74,25 +69,25 @@ public class Kit {
         NodeList inputNodes = element.getElementsByTagName(PINPUT);
         Common.logger.log(Level.FINE, "inputNodes.length <{0}>", inputNodes.getLength());
 
-        inputs = new ArrayList<Input>();
+        inputs.clear();
 
         for (int i = 0; i < inputNodes.getLength(); i++) {
-            inputs.add(new Input((Element) inputNodes.item(i)));
+            inputs.add(i, new Input((Element) inputNodes.item(i)));
         }
     }
 
     //----------------------------------------------
-    public final String getKitName() {
+    public String getKitName() {
         return this.kitName;
     }
 
     //----------------------------------------------
-    public final int getKitNumber() {
+    public int getKitNumber() {
         return this.kitNumber;
     }
 
     //----------------------------------------------
-    public final int getProgramChange() {
+    public int getProgramChange() {
         return this.programChange;
     }
 
@@ -103,13 +98,13 @@ public class Kit {
     }
 
     //----------------------------------------------
-    public final void setKitName(String kitName) {
+    public void setKitName(String kitName) {
         this.kitName = kitName;
         Common.logger.log(Level.FINEST, "kitName<{0}>", this.kitName);
     }
 
     //----------------------------------------------
-    public final void setProgramChange(int programChange) {
+    public void setProgramChange(int programChange) {
         if (lovProgramChange.containsKey(programChange)) {
             this.programChange = programChange;
             Common.logger.log(Level.FINEST, "programChange<{0}>", this.programChange);

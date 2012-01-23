@@ -8,6 +8,7 @@ import Base.GlobalInput;
 import java.util.logging.Level;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.SysexMessage;
+import org.w3c.dom.Element;
 
 /**
  *
@@ -20,6 +21,13 @@ public class GlobalInputMidi extends GlobalInput {
     public static Exception validationFailed;
     private static final byte[] HEADER = {
         0x00, 0x00, 0x0E, 0x2C, 0x0D, 0x00, 0x00, 0x0A, 0x02};
+
+    public GlobalInputMidi() {
+    }
+
+    public GlobalInputMidi(Element element) {
+        super(element);
+    }
 
     //----------------------------------------------
     public GlobalInputMidi(int triggerInputNumber, String triggerInputName,
@@ -39,8 +47,8 @@ public class GlobalInputMidi extends GlobalInput {
             Common.logger.finer("validated OK");
 
             int inputNumber = Common.unsignedByteToInt(data[INPUTNUMBERPOSITION]);
-            setTriggerInputNumber(inputNumber);
-            setTriggerInputName("Input-" + String.valueOf((inputNumber / 2) + 1) + (inputNumber % 2 == 0 ? "T" : "R"));
+            setInputNumber(inputNumber);
+            setInputName("Input-" + String.valueOf((inputNumber / 2) + 1) + (inputNumber % 2 == 0 ? "T" : "R"));
 
             setGain(Common.unsignedByteToInt(data[10]));
             setVelocityCurve(Common.unsignedByteToInt(data[11]));

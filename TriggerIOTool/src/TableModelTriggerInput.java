@@ -3,10 +3,10 @@
  * and open the template in the editor.
  */
 
-import Base.GlobalInput;
 import Midi.Common;
 import Midi.DeviceMidi;
 import Midi.GlobalInputMidi;
+import java.util.List;
 import java.util.logging.Level;
 import javax.swing.table.AbstractTableModel;
 
@@ -89,8 +89,8 @@ public class TableModelTriggerInput extends AbstractTableModel{
                 Common.getKey(data[inputNumber][6],GlobalInputMidi.lovType));
     }
 
-    public void load(GlobalInput[] triggerInputs){
-        for(GlobalInput triggerInput : triggerInputs){
+    public void load(List <GlobalInputMidi> triggerInputs){
+        for(GlobalInputMidi triggerInput : triggerInputs){
             Common.logger.log(Level.FINEST,"Inputnumber = <{0}" + ">" + ", name = <{1}"
                         + ">" + ", gain = <{2}" + ">"
                         + ", velo = <{3}" + ">" + ", threshold = <{4}"
@@ -104,23 +104,5 @@ public class TableModelTriggerInput extends AbstractTableModel{
             data[triggerInput.getTriggerInputNumber()][5] = GlobalInputMidi.lovRetrigger.get(triggerInput.getRetrigger());
             data[triggerInput.getTriggerInputNumber()][6] = GlobalInputMidi.lovType.get(triggerInput.getTriggerType());
         }
-    }
-
-    public GlobalInput[] synchronise(GlobalInput[] triggerInputsIn){
-        GlobalInput[] triggerInputsOut = triggerInputsIn;
-
-        for(GlobalInput triggerInput : triggerInputsIn){
-
-            Common.logger.log(
-                           Level.FINEST,"Inputnumber = <{0}" + ">" + ", name = <{1}"
-                        + ">" + ", gain = <{2}" + ">"
-                        + ", velo = <{3}" + ">" + ", threshold = <{4}"
-                        + ">" + ", xtalk = <{5}" + ">"
-                        + ", retrigger = <{6}" + ">" + ", trigger type = <{7}>", new Object[]{triggerInput.getTriggerInputNumber(), triggerInput.getTriggerInputName(), triggerInput.getGain(), triggerInput.getVelocityCurve(), triggerInput.getThreshold(), triggerInput.getXTalk(), triggerInput.getRetrigger(), triggerInput.getTriggerType()});
-
-            int inputNumber = triggerInput.getTriggerInputNumber();
-            triggerInputsOut[inputNumber] = getTriggerInput(inputNumber);
-        }
-        return triggerInputsOut;
     }
 }

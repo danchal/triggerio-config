@@ -21,9 +21,9 @@ public class DownloadReceiver implements Receiver {
      *
      */
     private static final long serialVersionUID = 1L;
-    public KitMidi[] kits = new KitMidi[DeviceMidi.COUNTKIT];
-    public GlobalInputMidi[] triggerInputs = new GlobalInputMidi[DeviceMidi.COUNTINPUT];
-    public List<byte[]> midiMessages = new ArrayList<byte[]>();
+    public List <KitMidi> kits = new ArrayList<KitMidi>();
+    public List <GlobalInputMidi> triggerInputs = new ArrayList<GlobalInputMidi>();
+    public List <byte[]> midiMessages = new ArrayList<byte[]>();
 
     //---------------------------------------------------------------------
     public void send(MidiMessage message, long timeStamp) {
@@ -46,10 +46,10 @@ public class DownloadReceiver implements Receiver {
             try {
                 switch (data.length) {
                     case KitMidi.KITMESSAGELENGTH:
-                        kits[Common.unsignedByteToInt(data[KitMidi.KITNUMBERPOSITION])] = new KitMidi(data);
+                        kits.add(Common.unsignedByteToInt(data[KitMidi.KITNUMBERPOSITION]), new KitMidi(data));
                         break;
                     case GlobalInputMidi.INPUTMESSAGELENGTH:
-                        triggerInputs[Common.unsignedByteToInt(data[KitMidi.KITNUMBERPOSITION])] = new GlobalInputMidi(data);
+                        triggerInputs.add(Common.unsignedByteToInt(data[KitMidi.KITNUMBERPOSITION]), new GlobalInputMidi(data));
                         break;
                     default:
                         Common.logger.severe("Unrecognised message length");

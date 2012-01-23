@@ -65,17 +65,17 @@ public class Input {
     }
 
     //----------------------------------------------
-    public final int getinputNumber() {
+    public int getinputNumber() {
         return this.number;
     }
 
     //----------------------------------------------
-    public final int getChannel() {
+    public int getChannel() {
         return this.channel;
     }
 
     //----------------------------------------------
-    public final int getNote() {
+    public int getNote() {
         return this.note;
     }
 
