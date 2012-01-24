@@ -1,6 +1,6 @@
 
-import Midi.Common;
-import Midi.DeviceMidi;
+import TriggerIO.Midi.Common;
+import TriggerIO.Midi.DeviceMidi;
 import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;

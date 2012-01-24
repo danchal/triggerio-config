@@ -1,6 +1,8 @@
+package components;
 
-import Base.Input;
-import Midi.*;
+
+import TriggerIO.Base.Input;
+import TriggerIO.Midi.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
@@ -47,6 +49,9 @@ public class TriggerIOTool extends JFrame {
         initPanel();
         initFrame();
         addWindowListeners();
+
+        transferOptionsDialog = new TransferOptionsDialog(this, true);
+        transferOptionsDialog.pack();
 
         fileStatus(false);
         goOffline();
@@ -401,7 +406,8 @@ public class TriggerIOTool extends JFrame {
         JOptionPane.showMessageDialog(this, bundleVersion.getString("Application.title")
                 + "\nVersion: " + getApplicationVersion()
                 + "\n"
-                + "\n" + bundleVersion.getString("Author.web"));
+                + "\n"
+                + bundleVersion.getString("Author.web" ));
     }
 
     //-----------------------------------------------------------
@@ -570,6 +576,15 @@ public class TriggerIOTool extends JFrame {
         }
     }
 
+    private int showTransferOptionsDialog(String messageText, int imageType){
+        transferOptionsDialog.setMessageText(messageText);
+        transferOptionsDialog.setImageIcon(imageType);
+        transferOptionsDialog.setLocationRelativeTo(this);
+        transferOptionsDialog.setVisible(true);
+
+        return transferOptionsDialog.getReturnStatus();
+    }
+
     //-----------------------------------------------------------
     private void download(MidiDevice.Info deviceInfo) throws MidiUnavailableException {
         Common.logger.info("Download");
@@ -582,28 +597,34 @@ public class TriggerIOTool extends JFrame {
             Transmitter transmitter = midiDevice.getTransmitter();
             transmitter.setReceiver(receiver);
 
-            int confirmDialog = JOptionPane.showConfirmDialog(this, "Request a transfer dump from your TriggerIO then press [OK]", "Download", JOptionPane.OK_CANCEL_OPTION);
+            int confirmDialog = showTransferOptionsDialog(
+                        "<html>"
+                    + "1. Request a Data Dump from the Trigger IO" + "<br>"
+                    + "2. Press [OK] to complete the transfer"
+                    + "</html>", TransferOptionsDialog.IMAGETYPE_DOWNLOAD);
 
             midiDevice.close();
             receiver.close();
 
+            Common.logger.log(Level.FINE, "confirmDialog <{0}>", confirmDialog);
+
             switch (confirmDialog) {
-                case JOptionPane.OK_OPTION:
+                case TransferOptionsDialog.RET_OK:
 
                     if (!receiver.midiMessages.isEmpty()) {
-
                         triggerIODevice.kits = receiver.kits;
                         triggerIODevice.globalInputs = receiver.triggerInputs;
 
                         loadTables();
                         saveAsFile();
+
                     } else {
                         JOptionPane.showMessageDialog(this, "No sysex messages received", "Download", JOptionPane.ERROR_MESSAGE);
 
                     }
                     break;
 
-                case JOptionPane.CANCEL_OPTION:
+                case TransferOptionsDialog.RET_CANCEL:
                     break;
             }
         } else {
@@ -933,10 +954,16 @@ public class TriggerIOTool extends JFrame {
                 } else {
                     chooseFile();
                 }
-                int option = JOptionPane.showConfirmDialog(this, "The device will be synchronised with the current loaded file", "Synchronise", JOptionPane.OK_CANCEL_OPTION);
 
-                switch (option) {
-                    case JOptionPane.OK_OPTION:
+                int confirmDialog = showTransferOptionsDialog(
+                        "<html>"
+                    + "The device will be synchronised with the current loaded file." + "<br>"
+                    + "This will overwrite ALL of the Trigger IO device settings." + "<br>"
+                    + "Press [OK] to complete the transfer"
+                    + "</html>", TransferOptionsDialog.IMAGETYPE_UPLOAD);
+
+                switch (confirmDialog) {
+                    case TransferOptionsDialog.RET_OK:
                         try {
                             triggerIODevice.send();
                         } catch (InvalidMidiDataException ex) {
@@ -945,7 +972,7 @@ public class TriggerIOTool extends JFrame {
                             goOffline();
                         }
                         break;
-                    case JOptionPane.CANCEL_OPTION:
+                    case TransferOptionsDialog.RET_CANCEL:
                         goOffline();
                         break;
                 }
@@ -1060,4 +1087,7 @@ public class TriggerIOTool extends JFrame {
     final FileNameExtensionFilter fileNameExtensionFilter = new FileNameExtensionFilter(bundleVersion.getString("File.description"), bundleVersion.getString("File.xml"), bundleVersion.getString("File.sysex"));
     final String DEFAULTEXTENSION = bundleVersion.getString("File.xml");
     String currentDirectory = System.getProperty("user.dir");
+
+    TransferOptionsDialog transferOptionsDialog;
+
 }

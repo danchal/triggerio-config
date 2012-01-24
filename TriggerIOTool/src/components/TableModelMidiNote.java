@@ -1,12 +1,14 @@
+package components;
+
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
 
-import Base.Input;
-import Midi.Common;
-import Midi.DeviceMidi;
-import Midi.KitMidi;
+import TriggerIO.Base.Input;
+import TriggerIO.Midi.Common;
+import TriggerIO.Midi.DeviceMidi;
+import TriggerIO.Midi.KitMidi;
 import java.util.List;
 import java.util.logging.Level;
 import javax.swing.table.AbstractTableModel;
@@ -15,12 +17,12 @@ import javax.swing.table.AbstractTableModel;
  *
  * @author DrumTrigger
  */
-public class TableModelMidiChannel extends AbstractTableModel{
+public class TableModelMidiNote extends AbstractTableModel{
 
     private String[] columnNames;
     private Object[][] data;
 
-    public TableModelMidiChannel() {
+    public TableModelMidiNote() {
         columnNames = new String[DeviceMidi.COUNTKIT +1];
         data        = new Object[DeviceMidi.COUNTINPUT][DeviceMidi.COUNTKIT +1];
 
@@ -65,7 +67,7 @@ public class TableModelMidiChannel extends AbstractTableModel{
     }
 
     public int getRealValueAt(int row, int col){
-        return Common.getKey(data[row][col], Input.lovChannel);
+        return Common.getKey(data[row][col], Input.lovNote);
     }
 
     public void load(List <KitMidi> kits){
@@ -74,9 +76,10 @@ public class TableModelMidiChannel extends AbstractTableModel{
 
             for(Input input : kit.inputs){
                 Common.logger.log(Level.FINEST,"kitNumber = <{0}" + ">"
-                        + ", inputNumber = <{1}" + ">" + ", value = <{2}>" , new Object[]{kit.getKitNumber(), input.getinputNumber(), input.getChannel()});
+                        + ", inputNumber = <{1}" + ">" + ", value = <{2}>" ,
+                        new Object[]{kit.getKitNumber(), input.getinputNumber(), input.getNote()});
                 data[input.getinputNumber()][0] = "Input-" + input.getinputNumber();
-                data[input.getinputNumber()][kit.getKitNumber() + 1] = Input.lovChannel.get(input.getChannel());
+                data[input.getinputNumber()][kit.getKitNumber() + 1] = Input.lovNote.get(input.getNote());
             }
         }
     }
