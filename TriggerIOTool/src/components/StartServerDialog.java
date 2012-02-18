@@ -1,21 +1,18 @@
-package components;
-
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
+package components;
 
-import Midi.Common;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.util.logging.Level;
 import javax.swing.*;
 
 /**
  *
  * @author dan
  */
-public class TransferOptionsDialog extends javax.swing.JDialog {
+public class StartServerDialog extends javax.swing.JDialog {
 
     /**
      * A return status code - returned if Cancel button has been pressed
@@ -26,22 +23,14 @@ public class TransferOptionsDialog extends javax.swing.JDialog {
      */
     public static final int RET_OK = 1;
 
-    public static final int IMAGETYPE_DOWNLOAD = 1;
-    public static final int IMAGETYPE_UPLOAD = 2;
-
-    private static final ImageIcon imgDownload = new ImageIcon( TransferOptionsDialog.class.getResource("/images/download_250x96.png") );
-    private static final ImageIcon imgUpload = new ImageIcon( TransferOptionsDialog.class.getResource("/images/upload_250x96.png") );
-
     /**
-     * Creates new form NewOkCancelDialog
+     * Creates new form SetServerPortDialog
      */
-    public TransferOptionsDialog(java.awt.Frame parent, boolean modal) {
+    public StartServerDialog(java.awt.Frame parent, boolean modal, int serverPort) {
         super(parent, modal);
         initComponents();
 
-        labelImage.setText(null);
-
-        pack();
+        portText.setText(String.valueOf(serverPort));
 
         // Close the dialog when Esc is pressed
         String cancelName = "cancel";
@@ -63,6 +52,11 @@ public class TransferOptionsDialog extends javax.swing.JDialog {
         return returnStatus;
     }
 
+    public int getServerPort(){
+        return Integer.parseInt(portText.getText());
+    }
+
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -74,10 +68,10 @@ public class TransferOptionsDialog extends javax.swing.JDialog {
 
         okButton = new javax.swing.JButton();
         cancelButton = new javax.swing.JButton();
-        messageLabel = new javax.swing.JLabel();
-        labelImage = new javax.swing.JLabel();
+        portLabel = new javax.swing.JLabel();
+        portText = new javax.swing.JTextField();
 
-        setTitle("Transfer");
+        setTitle("Start server");
         setModal(true);
         setResizable(false);
         addWindowListener(new java.awt.event.WindowAdapter() {
@@ -94,34 +88,31 @@ public class TransferOptionsDialog extends javax.swing.JDialog {
         });
 
         cancelButton.setText("Cancel");
-        cancelButton.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         cancelButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cancelButtonActionPerformed(evt);
             }
         });
 
-        messageLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        messageLabel.setText("blah blah blah");
+        portLabel.setText("Port");
 
-        labelImage.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        labelImage.setText("<TransferImage>");
+        portText.setText("4444");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(labelImage, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
+                .addComponent(portLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(okButton, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(cancelButton))
-                    .addComponent(messageLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
+                    .addComponent(portText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {cancelButton, okButton});
@@ -130,21 +121,19 @@ public class TransferOptionsDialog extends javax.swing.JDialog {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(messageLabel)
-                .addGap(18, 18, 18)
-                .addComponent(labelImage, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(okButton)
-                    .addComponent(cancelButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
+                    .addComponent(portLabel)
+                    .addComponent(portText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(cancelButton)
+                    .addComponent(okButton))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         getRootPane().setDefaultButton(okButton);
-        labelImage.getAccessibleContext().setAccessibleName("<labelUpload>");
 
-        java.awt.Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
-        setBounds((screenSize.width-204)/2, (screenSize.height-139)/2, 204, 139);
+        pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
@@ -165,35 +154,63 @@ public class TransferOptionsDialog extends javax.swing.JDialog {
     private void doClose(int retStatus) {
         returnStatus = retStatus;
         setVisible(false);
-        //dispose();
+        dispose();
     }
 
-    public void setImageIcon (int imageType){
-        Common.logger.log(Level.FINE, "imageType <{0}>", imageType);
-
-        switch (imageType){
-            case IMAGETYPE_DOWNLOAD :
-                labelImage.setIcon(imgDownload);
-                break;
-            case IMAGETYPE_UPLOAD :
-                labelImage.setIcon(imgUpload);
-                break;
-            default :
-                Common.logger.log(Level.SEVERE, "imageType not known!!");
-                break;
-        }
-        pack();
-    }
-
-    public void setMessageText(String messageText) {
-        this.messageLabel.setText(messageText);
-    }
-    
+//    /**
+//     * @param args the command line arguments
+//     */
+//    public static void main(String args[]) {
+//        /*
+//         * Set the Nimbus look and feel
+//         */
+//        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+//        /*
+//         * If Nimbus (introduced in Java SE 6) is not available, stay with the
+//         * default look and feel. For details see
+//         * http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
+//         */
+//        try {
+//            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+//                if ("Nimbus".equals(info.getName())) {
+//                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+//                    break;
+//                }
+//            }
+//        } catch (ClassNotFoundException ex) {
+//            java.util.logging.Logger.getLogger(SetServerPortDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        } catch (InstantiationException ex) {
+//            java.util.logging.Logger.getLogger(SetServerPortDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        } catch (IllegalAccessException ex) {
+//            java.util.logging.Logger.getLogger(SetServerPortDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+//            java.util.logging.Logger.getLogger(SetServerPortDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+//        }
+//        //</editor-fold>
+//
+//        /*
+//         * Create and display the dialog
+//         */
+//        java.awt.EventQueue.invokeLater(new Runnable() {
+//
+//            public void run() {
+//                SetServerPortDialog dialog = new SetServerPortDialog(new javax.swing.JFrame(), true);
+//                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+//
+//                    @Override
+//                    public void windowClosing(java.awt.event.WindowEvent e) {
+//                        System.exit(0);
+//                    }
+//                });
+//                dialog.setVisible(true);
+//            }
+//        });
+//    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelButton;
-    private javax.swing.JLabel labelImage;
-    private javax.swing.JLabel messageLabel;
     private javax.swing.JButton okButton;
+    private javax.swing.JLabel portLabel;
+    private javax.swing.JTextField portText;
     // End of variables declaration//GEN-END:variables
     private int returnStatus = RET_CANCEL;
 }

@@ -1,14 +1,14 @@
-package components;
-
-
-import TriggerIO.Base.Input;
-import TriggerIO.Midi.*;
+import Base.Input;
+import Midi.*;
+import Server.Server;
+import components.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.sound.midi.*;
 import javax.swing.*;
 import javax.swing.event.MenuEvent;
@@ -60,8 +60,8 @@ public class TriggerIOTool extends JFrame {
         Common.logger.log(Level.INFO, "Application.revision = <{0}>", bundleVersion.getString("Application.revision"));
         Common.logger.log(Level.INFO, "Application.build = <{0}>", bundleVersion.getString("Application.build"));
 
-        Common.logger.log(Level.INFO, "bundleVersion.getString(File.xml) <{0}>", bundleVersion.getString("File.xml"));
-        Common.logger.log(Level.INFO, "bundleVersion.getString(File.sysex) <{0}>", bundleVersion.getString("File.sysex"));
+        Common.logger.log(Level.FINE, "bundleVersion.getString(File.xml) <{0}>", bundleVersion.getString("File.xml"));
+        Common.logger.log(Level.FINE, "bundleVersion.getString(File.sysex) <{0}>", bundleVersion.getString("File.sysex"));
     }
 
     //-----------------------------------------------------------
@@ -329,11 +329,13 @@ public class TriggerIOTool extends JFrame {
         initMenuFile();
         initMenuDevice();
         initMenuDownload();
+        initMenuServer();
         initMenuHelp();
 
         menuBarMain.add(menuFile);
         menuBarMain.add(menuDevice);
         menuBarMain.add(menuDownload);
+        //menuBarMain.add(menuServer);
         menuBarMain.add(menuHelp);
         this.setJMenuBar(menuBarMain);
     }
@@ -408,6 +410,90 @@ public class TriggerIOTool extends JFrame {
                 + "\n"
                 + "\n"
                 + bundleVersion.getString("Author.web" ));
+    }
+
+    //-----------------------------------------------------------
+    private void menuSelectedServer(){
+        setServerMenuStatus();
+    }
+
+    //-----------------------------------------------------------
+    private void setServerMenuStatus(){
+        Common.logger.fine("setServerMenuStatus");
+        menuItemServerStart.setEnabled(!serverThread.isAlive());
+        menuItemServerStop.setEnabled(serverThread.isAlive());
+    }
+
+    //-----------------------------------------------------------
+    private void actionPerformedMenuItemServerStart(ActionEvent evt) {
+        StartServerDialog dialog = new StartServerDialog(this, true, serverPort);
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+
+        int returnStatus = dialog.getReturnStatus();
+
+        if (returnStatus==StartServerDialog.RET_OK){
+            serverPort = dialog.getServerPort();
+
+            serverThread = new Thread(new Server(serverPort, triggerIODevice));
+            serverThread.start();
+
+            Common.logger.log(Level.INFO, "Server started on serverPort =<{0}>", serverPort);
+        }
+    }
+
+    //-----------------------------------------------------------
+    private void actionPerformedMenuItemServerStop(ActionEvent evt) {
+        serverThread.interrupt();
+
+        try {
+            serverThread.join();
+            Common.logger.info("server stopped");
+        } catch (InterruptedException ex) {
+            Logger.getLogger(TriggerIOTool.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    //-----------------------------------------------------------
+    private void initMenuServer() {
+        menuServer = new JMenu("Server");
+
+        menuServer.addMenuListener(new MenuListener() {
+
+            public void menuSelected(MenuEvent e) {
+                menuSelectedServer();
+            }
+
+            public void menuDeselected(MenuEvent e) {
+                //throw new UnsupportedOperationException("Not supported yet.");
+            }
+
+            public void menuCanceled(MenuEvent e) {
+                //throw new UnsupportedOperationException("Not supported yet.");
+            }
+        });
+
+        menuItemServerStart = new JMenuItem("Start");
+        menuItemServerStop = new JMenuItem("Stop");
+
+        menuItemServerStart.addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+                actionPerformedMenuItemServerStart(e);
+            }
+        });
+
+        menuItemServerStop.addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+                actionPerformedMenuItemServerStop(e);
+            }
+        });
+
+        menuServer.add(menuItemServerStart);
+        menuServer.add(menuItemServerStop);
+
+        setServerMenuStatus();
     }
 
     //-----------------------------------------------------------
@@ -854,35 +940,54 @@ public class TriggerIOTool extends JFrame {
 
     //-----------------------------------------------------------
     private void tableChangedProgramChange(TableModelEvent evt) {
-        triggerIODevice.kits.get(evt.getColumn()).setProgramChange(tableModelProgramChange.getRealValueAt(evt.getFirstRow(), evt.getColumn()));
-        updateDrumKit(evt.getColumn());
+        Common.logger.log(Level.FINEST, "evt.getColumn()=<{0}>, evt.getFirstRow()=<{1}>", new Object[]{evt.getColumn(), evt.getFirstRow()});
+
+        int kitNumber = evt.getColumn();
+        int value = tableModelProgramChange.getRealValueAt(evt.getFirstRow(), evt.getColumn());
+
+        triggerIODevice.kits.get(kitNumber).setProgramChange(value);
+        updateDrumKit(kitNumber);
     }
 
     //-----------------------------------------------------------
     private void tableChangedMidiChannel(TableModelEvent evt) {
+        Common.logger.log(Level.FINEST, "evt.getColumn()=<{0}>, evt.getFirstRow()=<{1}>", new Object[]{evt.getColumn(), evt.getFirstRow()});
+
         if (evt.getColumn() != 0) {
-            triggerIODevice.kits.get(evt.getColumn()).inputs.get(evt.getFirstRow()).setChannel(tableModelMidiChannel.getRealValueAt(evt.getFirstRow(), evt.getColumn()));
-            updateDrumKit(evt.getColumn() - 1);
+            int kitNumber = evt.getColumn() - 1;
+            int inputNumber = evt.getFirstRow();
+            int value = tableModelMidiChannel.getRealValueAt(evt.getFirstRow(), evt.getColumn());
+
+            triggerIODevice.kits.get(kitNumber).inputs.get(inputNumber).setChannel(value);
+            updateDrumKit(kitNumber);
         }
     }
 
     //-----------------------------------------------------------
     private void tableChangedMidiNote(TableModelEvent evt) {
+        Common.logger.log(Level.FINEST, "evt.getColumn()=<{0}>, evt.getFirstRow()=<{1}>", new Object[]{evt.getColumn(), evt.getFirstRow()});
+
         if (evt.getColumn() != 0) {
-            triggerIODevice.kits.get(evt.getColumn()).inputs.get(evt.getFirstRow()).setNote(tableModelMidiNote.getRealValueAt(evt.getFirstRow(), evt.getColumn()));
-            updateDrumKit(evt.getColumn() - 1);
+            int kitNumber = evt.getColumn() - 1;
+            int inputNumber = evt.getFirstRow();
+            int value = tableModelMidiNote.getRealValueAt(evt.getFirstRow(), evt.getColumn());
+
+            triggerIODevice.kits.get(kitNumber).inputs.get(inputNumber).setNote(value);
+            updateDrumKit(kitNumber);
         }
     }
 
     //-----------------------------------------------------------
     private void tableChangedTriggerInput(TableModelEvent evt) {
-        triggerIODevice.globalInputs.set(evt.getFirstRow(), tableModelTriggerInput.getTriggerInput(evt.getFirstRow()));
+        int inputNumber = evt.getFirstRow();
+
+        triggerIODevice.globalInputs.set(inputNumber, tableModelTriggerInput.getTriggerInput(inputNumber));
 
         if (evt.getColumn() != 0) {
-            updateTriggerInput(evt.getFirstRow());
+            updateTriggerInput(inputNumber);
         } else {
-            tableMidiChannel.setValueAt(tableTriggerInput.getValueAt(evt.getFirstRow(), 0), evt.getFirstRow(), 0);
-            tableMidiNote.setValueAt(tableTriggerInput.getValueAt(evt.getFirstRow(), 0), evt.getFirstRow(), 0);
+            tableMidiChannel.setValueAt(tableTriggerInput.getValueAt(inputNumber, 0), inputNumber, 0);
+            tableMidiNote.setValueAt(tableTriggerInput.getValueAt(inputNumber, 0), inputNumber, 0);
         }
     }
 
@@ -1051,6 +1156,7 @@ public class TriggerIOTool extends JFrame {
     JLabel labelFileName;
     JLabel labelDeviceName;
     JMenuBar menuBarMain;
+    JMenu menuServer;
     JMenu menuFile;
     JMenu menuDevice;
     JMenu menuHelp;
@@ -1060,6 +1166,9 @@ public class TriggerIOTool extends JFrame {
     JMenuItem menuItemFileSaveAs;
     JMenuItem menuItemFileExit;
     JMenuItem menuItemHelpAbout;
+    JMenuItem menuItemServerStart;
+    JMenuItem menuItemServerStop;
+
     JTable tableProgramChange;
     JTable tableMidiChannel;
     JTable tableMidiNote;
@@ -1089,5 +1198,6 @@ public class TriggerIOTool extends JFrame {
     String currentDirectory = System.getProperty("user.dir");
 
     TransferOptionsDialog transferOptionsDialog;
-
+    int serverPort  = 4444;
+    Thread serverThread = new Thread();
 }

@@ -5,9 +5,9 @@ package components;
  * and open the template in the editor.
  */
 
-import TriggerIO.Midi.Common;
-import TriggerIO.Midi.DeviceMidi;
-import TriggerIO.Midi.KitMidi;
+import Midi.Common;
+import Midi.DeviceMidi;
+import Midi.KitMidi;
 import java.util.List;
 import java.util.logging.Level;
 import javax.swing.table.AbstractTableModel;
