@@ -44,6 +44,30 @@ public abstract class DeviceAbstract <T extends Kit, U extends GlobalInput>{
     abstract protected void addGlobalInput(Element element, int i);
 
     //---------------------------------------------------------------------
+    public T getKit(int kitNumber){
+        T foundKit = null;
+
+        for (T kit : kits){
+            if (kit.getKitNumber() == kitNumber){
+                foundKit = kit;
+            }
+        }
+        return foundKit;
+    }
+
+    //---------------------------------------------------------------------
+    public U getGlobalInput(int inputNumber){
+        U foundGlobalInput = null;
+
+        for (U globalInput : globalInputs){
+            if(globalInput.getTriggerInputNumber() == inputNumber){
+                foundGlobalInput = globalInput;
+            }
+        }
+        return foundGlobalInput;
+    }
+
+    //---------------------------------------------------------------------
     public void setDevice (Element element) {
         Common.logger.fine("begin");
 

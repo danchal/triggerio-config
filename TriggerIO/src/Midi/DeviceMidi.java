@@ -75,27 +75,27 @@ public class DeviceMidi extends DeviceAbstract<KitMidi, GlobalInputMidi>  {
     //---------------------------------------------------------------------
     public void sendtKit(int kitNumber) throws MidiUnavailableException, InvalidMidiDataException {
         Receiver receiver = midiDevice.getReceiver();
-        sendtKit(kitNumber, receiver);
+        sendtKit(getKit(kitNumber), receiver);
         receiver.close();
     }
 
     //---------------------------------------------------------------------
-    public void sendtKit(int kitNumber, Receiver receiver) throws InvalidMidiDataException {
-        Common.logger.log(Level.FINE, "Sending kitNumber=<{0}>", kitNumber);
-        receiver.send(kits.get(kitNumber).getSysexMessage(), -1);
+    public void sendtKit(KitMidi kit, Receiver receiver) throws InvalidMidiDataException {
+        Common.logger.log(Level.FINE, "Sending kitNumber=<{0}>", kit.getKitNumber());
+        receiver.send(kit.getSysexMessage(), -1);
     }
 
     //---------------------------------------------------------------------
     public void sendTriggerInput(int inputNumber) throws MidiUnavailableException, InvalidMidiDataException {
         Receiver receiver = midiDevice.getReceiver();
-        sendTriggerInput(inputNumber, receiver);
+        sendTriggerInput(getGlobalInput(inputNumber), receiver);
         receiver.close();
     }
 
     //---------------------------------------------------------------------
-    public void sendTriggerInput(int inputNumber, Receiver receiver) throws InvalidMidiDataException {
-        Common.logger.log(Level.FINE, "Sending inputNumber=<{0}>", inputNumber);
-        receiver.send(globalInputs.get(inputNumber).getSysexMessage(), -1);
+    public void sendTriggerInput(GlobalInputMidi globalInput, Receiver receiver) throws InvalidMidiDataException {
+        Common.logger.log(Level.FINE, "Sending inputNumber=<{0}>", globalInput.getTriggerInputNumber());
+        receiver.send(globalInput.getSysexMessage(), -1);
     }
 
     //---------------------------------------------------------------------
@@ -104,11 +104,11 @@ public class DeviceMidi extends DeviceAbstract<KitMidi, GlobalInputMidi>  {
         Receiver receiver = midiDevice.getReceiver();
 
         for (KitMidi kit : kits){
-            sendtKit(kit.getKitNumber(), receiver);
+            sendtKit(kit, receiver);
         }
 
         for (GlobalInputMidi globalInput : globalInputs){
-            sendTriggerInput(globalInput.getTriggerInputNumber(), receiver);
+            sendTriggerInput(globalInput, receiver);
         }
 
         receiver.close();

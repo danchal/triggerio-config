@@ -47,17 +47,29 @@ public class Kit {
     }
 
     //---------------------------------------------------------------------
-    public Element getKit(Document doc) {
+    private Element getKit2(Document doc, int inputNumber, boolean getAll) {
         Element element = doc.createElement(ROOT);
         element.setAttribute(PNAME, kitName);
         element.setAttribute(PNUMBER, String.valueOf(kitNumber));
         element.setAttribute(PPROGRAM, String.valueOf(programChange));
 
         for (Input input : inputs) {
-            element.appendChild(input.get(doc, Input.Setting.ALL));
+            if ((input.getinputNumber() == inputNumber) || getAll){
+                element.appendChild(input.get(doc, Input.Setting.ALL));
+            }
         }
 
         return element;
+    }
+
+    //---------------------------------------------------------------------
+    public Element getKit(Document doc, int inputNumber) {
+        return getKit2(doc, inputNumber, false);
+    }
+
+    //---------------------------------------------------------------------
+    public Element getKit(Document doc) {
+        return getKit2(doc, -1, true);
     }
 
     //---------------------------------------------------------------------
@@ -100,14 +112,14 @@ public class Kit {
     //----------------------------------------------
     public void setKitName(String kitName) {
         this.kitName = kitName;
-        Common.logger.log(Level.FINEST, "kitNumber<{0}>, kitName<{1}>", new Object[] {this.kitNumber, this.kitName});
+        Common.logger.log(Level.FINEST, "kitNumber<{0}>, kitName<{1}>", new Object[]{this.kitNumber, this.kitName});
     }
 
     //----------------------------------------------
     public void setProgramChange(int programChange) {
         if (lovProgramChange.containsKey(programChange)) {
             this.programChange = programChange;
-            Common.logger.log(Level.FINEST, "kitNumber<{0}>, programChange<{1}>", new Object[] {this.kitNumber, this.programChange});
+            Common.logger.log(Level.FINEST, "kitNumber<{0}>, programChange<{1}>", new Object[]{this.kitNumber, this.programChange});
         } else {
             Common.logger.log(Level.WARNING, "Unrecognised programChange<{0}>", programChange);
         }

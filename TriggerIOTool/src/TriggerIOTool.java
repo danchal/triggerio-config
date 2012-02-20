@@ -1,3 +1,4 @@
+
 import Base.Input;
 import Midi.*;
 import Server.Server;
@@ -30,16 +31,19 @@ public class TriggerIOTool extends JFrame {
 
     //-----------------------------------------------------------
     public static void main(String[] args) {
+        boolean debug = false;
+
         if (args.length != 0) {
             if (args[0].equalsIgnoreCase("debug")) {
                 Common.setLogLevel(Level.ALL);
+                debug = true;
             }
         }
-        TriggerIOTool triggerIOTool = new TriggerIOTool();
+        TriggerIOTool triggerIOTool = new TriggerIOTool(debug);
     }
 
     //-----------------------------------------------------------
-    public TriggerIOTool() {
+    public TriggerIOTool(boolean debug) {
         initDevice();
         initLov();
         initLabels();
@@ -62,6 +66,11 @@ public class TriggerIOTool extends JFrame {
 
         Common.logger.log(Level.FINE, "bundleVersion.getString(File.xml) <{0}>", bundleVersion.getString("File.xml"));
         Common.logger.log(Level.FINE, "bundleVersion.getString(File.sysex) <{0}>", bundleVersion.getString("File.sysex"));
+
+        if (debug) {
+            currentFile = new File("default.syx");
+            openFile();
+        }
     }
 
     //-----------------------------------------------------------
@@ -409,16 +418,16 @@ public class TriggerIOTool extends JFrame {
                 + "\nVersion: " + getApplicationVersion()
                 + "\n"
                 + "\n"
-                + bundleVersion.getString("Author.web" ));
+                + bundleVersion.getString("Author.web"));
     }
 
     //-----------------------------------------------------------
-    private void menuSelectedServer(){
+    private void menuSelectedServer() {
         setServerMenuStatus();
     }
 
     //-----------------------------------------------------------
-    private void setServerMenuStatus(){
+    private void setServerMenuStatus() {
         Common.logger.fine("setServerMenuStatus");
         menuItemServerStart.setEnabled(!serverThread.isAlive());
         menuItemServerStop.setEnabled(serverThread.isAlive());
@@ -432,7 +441,7 @@ public class TriggerIOTool extends JFrame {
 
         int returnStatus = dialog.getReturnStatus();
 
-        if (returnStatus==StartServerDialog.RET_OK){
+        if (returnStatus == StartServerDialog.RET_OK) {
             serverPort = dialog.getServerPort();
 
             serverThread = new Thread(new Server(serverPort, triggerIODevice));
@@ -662,7 +671,7 @@ public class TriggerIOTool extends JFrame {
         }
     }
 
-    private int showTransferOptionsDialog(String messageText, int imageType){
+    private int showTransferOptionsDialog(String messageText, int imageType) {
         transferOptionsDialog.setMessageText(messageText);
         transferOptionsDialog.setImageIcon(imageType);
         transferOptionsDialog.setLocationRelativeTo(this);
@@ -684,7 +693,7 @@ public class TriggerIOTool extends JFrame {
             transmitter.setReceiver(receiver);
 
             int confirmDialog = showTransferOptionsDialog(
-                        "<html>"
+                    "<html>"
                     + "1. Request a Data Dump from the Trigger IO" + "<br>"
                     + "2. Press [OK] to complete the transfer"
                     + "</html>", TransferOptionsDialog.IMAGETYPE_DOWNLOAD);
@@ -786,7 +795,7 @@ public class TriggerIOTool extends JFrame {
 
     //-----------------------------------------------------------
     private void openFile() {
-        String ext = currentFile.getPath().substring(currentFile.getPath().lastIndexOf(".") + 1, currentFile.getPath().length());
+        String ext = fileExtension();
         Common.logger.log(Level.INFO, "File extension <{0}>", ext);
 
         try {
@@ -873,10 +882,29 @@ public class TriggerIOTool extends JFrame {
     }
 
     //-----------------------------------------------------------
+    private String fileExtension() {
+        return currentFile.getPath().substring(currentFile.getPath().lastIndexOf(".") + 1, currentFile.getPath().length());
+    }
+
+    //-----------------------------------------------------------
     private void saveCurrentFile() {
+        String ext = fileExtension();
+        Common.logger.log(Level.INFO, "File extension <{0}>", ext);
+
         currentDirectory = currentFile.getPath();
+
         try {
-            triggerIODevice.exportXml(currentFile);
+
+            if (ext.equalsIgnoreCase(bundleVersion.getString("File.xml"))) {
+                triggerIODevice.exportXml(currentFile);
+
+            } else if (ext.equalsIgnoreCase(bundleVersion.getString("File.sysex"))) {
+                triggerIODevice.exportSyx(currentFile);
+
+            } else {
+                Common.logger.log(Level.INFO, "File type not recognised");
+                throw new Exception();
+            }
 
             fileStatus(true);
 
@@ -1062,10 +1090,10 @@ public class TriggerIOTool extends JFrame {
 
                 int confirmDialog = showTransferOptionsDialog(
                         "<html>"
-                    + "The device will be synchronised with the current loaded file." + "<br>"
-                    + "This will overwrite ALL of the Trigger IO device settings." + "<br>"
-                    + "Press [OK] to complete the transfer"
-                    + "</html>", TransferOptionsDialog.IMAGETYPE_UPLOAD);
+                        + "The device will be synchronised with the current loaded file." + "<br>"
+                        + "This will overwrite ALL of the Trigger IO device settings." + "<br>"
+                        + "Press [OK] to complete the transfer"
+                        + "</html>", TransferOptionsDialog.IMAGETYPE_UPLOAD);
 
                 switch (confirmDialog) {
                     case TransferOptionsDialog.RET_OK:
@@ -1168,7 +1196,6 @@ public class TriggerIOTool extends JFrame {
     JMenuItem menuItemHelpAbout;
     JMenuItem menuItemServerStart;
     JMenuItem menuItemServerStop;
-
     JTable tableProgramChange;
     JTable tableMidiChannel;
     JTable tableMidiNote;
@@ -1196,8 +1223,7 @@ public class TriggerIOTool extends JFrame {
     final FileNameExtensionFilter fileNameExtensionFilter = new FileNameExtensionFilter(bundleVersion.getString("File.description"), bundleVersion.getString("File.xml"), bundleVersion.getString("File.sysex"));
     final String DEFAULTEXTENSION = bundleVersion.getString("File.xml");
     String currentDirectory = System.getProperty("user.dir");
-
     TransferOptionsDialog transferOptionsDialog;
-    int serverPort  = 4444;
+    int serverPort = 4444;
     Thread serverThread = new Thread();
 }

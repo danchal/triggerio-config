@@ -1,11 +1,12 @@
 package Server;
 
+import Base.Common;
 import Midi.DeviceMidi;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
+import java.util.logging.Level;
 import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 public class Protocol {
 
@@ -17,46 +18,39 @@ public class Protocol {
     public static final String ACTIONTYPE = "actiontype";
 
     public enum StatusType {
-        CLOSE, OK
+        CLOSE, OK, FAIL
     }
 
     public StatusType status;
-    public String outMessage;
     public Document outDocument;
 
-    private Document createDocument(String actionType) throws ParserConfigurationException {
-        //Create instance of DocumentBuilderFactory
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        //Get the DocumentBuilder
-        DocumentBuilder docBuilder = factory.newDocumentBuilder();
-        //Create blank DOM Document
-        Document document = docBuilder.newDocument();
-
-        //create the root element
-        Element message = document.createElement(ROOT);
-
-        //set message action type
-        message.setAttribute(ACTIONTYPE, actionType);
-
-        //add it to the xml tree
-        document.appendChild(message);
-        return document;
-    }
-
     public Protocol(Document inDoc, DeviceMidi device) throws ParserConfigurationException {
-        Element messageElement = inDoc.getElementById(ROOT);
+        Base.Common.logger.log(Level.INFO, "begin");
 
-        String actionType = messageElement.getAttribute(ACTIONTYPE);
+        String actionType;
+
+        {
+            NodeList nodeList = inDoc.getElementsByTagName(Protocol.ROOT);
+            Element messageElement = (Element) nodeList.item(0);
+            actionType = messageElement.getAttribute(ACTIONTYPE);
+        }
+
+        Base.Common.logger.log(Level.FINE, "actionType=<{0}>", actionType);
 
         status = StatusType.OK;
 
         if (ACTION_GET.equalsIgnoreCase(actionType)) {
-            outDocument = createDocument(ACTION_SET);
-            outDocument.appendChild(device.getDevice(outDocument));
+            outDocument = Tools.createDocument(ACTION_SET);
+
+            Element rootElement = outDocument.getDocumentElement();
+            rootElement.appendChild(device.getDevice(outDocument));
 
         } else if (ACTION_SET.equalsIgnoreCase(actionType)) {
-            device.setDevice(inDoc.getElementById(DeviceMidi.ROOT));
-            outDocument = createDocument(ACTION_OK);
+            NodeList nodeList = inDoc.getElementsByTagName(DeviceMidi.ROOT);
+            Element deviceElement = (Element) nodeList.item(0);
+
+            device.setDevice(deviceElement);
+            outDocument = Tools.createDocument(ACTION_OK);
 
         } else if (ACTION_CLOSE.equalsIgnoreCase(actionType)) {
             status = StatusType.CLOSE;

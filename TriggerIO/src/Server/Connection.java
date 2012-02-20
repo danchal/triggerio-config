@@ -1,6 +1,5 @@
 package Server;
 
-
 import Base.Common;
 import Midi.DeviceMidi;
 import java.io.IOException;
@@ -38,11 +37,20 @@ public class Connection implements Runnable{
                 while (!closeThread){
                     Document inputDoc;
 
+                    Common.logger.log(Level.INFO, "waiting for request");
+
                     inputDoc = (Document) ois.readObject();
 
+                    Common.logger.log(Level.INFO, "object received");
+
                     Protocol protocol = new Protocol(inputDoc, device);
-                    oos.writeObject(protocol.outMessage);
+
+                    Common.logger.log(Level.INFO, "response={0}", Tools.toString(protocol.outDocument));
+
+                    oos.writeObject(protocol.outDocument);
                     oos.flush();
+
+                    Common.logger.log(Level.INFO, "response sent");
 
                     switch (protocol.status){
                         case CLOSE :
