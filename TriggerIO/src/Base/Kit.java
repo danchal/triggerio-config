@@ -25,7 +25,6 @@ public class Kit {
     public static final String PNUMBER = "number";
     public static final String PNAME = "name";
     public static final String PPROGRAM = "program";
-    public static final String PINPUT = "input";
     public static final Map<Integer, String> lovProgramChange = new LinkedHashMap<Integer, String>();
     private String kitName;
     private int kitNumber;
@@ -43,11 +42,11 @@ public class Kit {
 
     //----------------------------------------------
     public Kit(Element element) {
-        setKit(element);
+        set(element);
     }
 
     //---------------------------------------------------------------------
-    private Element getKit2(Document doc, int inputNumber, boolean getAll) {
+    private Element getKit(Document doc, int inputNumber, boolean getAll) {
         Element element = doc.createElement(ROOT);
         element.setAttribute(PNAME, kitName);
         element.setAttribute(PNUMBER, String.valueOf(kitNumber));
@@ -63,22 +62,22 @@ public class Kit {
     }
 
     //---------------------------------------------------------------------
-    public Element getKit(Document doc, int inputNumber) {
-        return getKit2(doc, inputNumber, false);
+    public Element get(Document doc, int inputNumber) {
+        return getKit(doc, inputNumber, false);
     }
 
     //---------------------------------------------------------------------
-    public Element getKit(Document doc) {
-        return getKit2(doc, -1, true);
+    public Element get(Document doc) {
+        return getKit(doc, -1, true);
     }
 
     //---------------------------------------------------------------------
-    public final void setKit(Element element) {
+    public final void set(Element element) {
         setKitNumber(Integer.parseInt(element.getAttribute(PNUMBER)));
         setKitName(element.getAttribute(PNAME));
         setProgramChange(Integer.parseInt(element.getAttribute(PPROGRAM)));
 
-        NodeList inputNodes = element.getElementsByTagName(PINPUT);
+        NodeList inputNodes = element.getElementsByTagName(Input.ROOT);
         Common.logger.log(Level.FINE, "inputNodes.length <{0}>", inputNodes.getLength());
 
         inputs.clear();

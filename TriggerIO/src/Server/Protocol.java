@@ -1,8 +1,9 @@
 package Server;
 
-import Base.Common;
 import Midi.DeviceMidi;
 import java.util.logging.Level;
+import javax.sound.midi.InvalidMidiDataException;
+import javax.sound.midi.MidiUnavailableException;
 import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -13,6 +14,7 @@ public class Protocol {
     public static final String ROOT = "message";
     public static final String ACTION_GET = "get";
     public static final String ACTION_SET = "set";
+    public static final String ACTION_UPDATE = "update";
     public static final String ACTION_OK = "ok";
     public static final String ACTION_CLOSE = "close";
     public static final String ACTIONTYPE = "actiontype";
@@ -22,15 +24,15 @@ public class Protocol {
     }
 
     public StatusType status;
-    public Document outDocument;
+    public Document response;
 
-    public Protocol(Document inDoc, DeviceMidi device) throws ParserConfigurationException {
+    public Protocol(Document request, DeviceMidi device) throws ParserConfigurationException, InvalidMidiDataException, MidiUnavailableException {
         Base.Common.logger.log(Level.INFO, "begin");
 
         String actionType;
 
         {
-            NodeList nodeList = inDoc.getElementsByTagName(Protocol.ROOT);
+            NodeList nodeList = request.getElementsByTagName(Protocol.ROOT);
             Element messageElement = (Element) nodeList.item(0);
             actionType = messageElement.getAttribute(ACTIONTYPE);
         }
@@ -40,17 +42,25 @@ public class Protocol {
         status = StatusType.OK;
 
         if (ACTION_GET.equalsIgnoreCase(actionType)) {
-            outDocument = Tools.createDocument(ACTION_SET);
+            response = Tools.createDocument(ACTION_SET);
 
-            Element rootElement = outDocument.getDocumentElement();
-            rootElement.appendChild(device.getDevice(outDocument));
+            Element rootElement = response.getDocumentElement();
+            rootElement.appendChild(device.get(response));
 
         } else if (ACTION_SET.equalsIgnoreCase(actionType)) {
-            NodeList nodeList = inDoc.getElementsByTagName(DeviceMidi.ROOT);
+            NodeList nodeList = request.getElementsByTagName(DeviceMidi.ROOT);
             Element deviceElement = (Element) nodeList.item(0);
 
-            device.setDevice(deviceElement);
-            outDocument = Tools.createDocument(ACTION_OK);
+            device.set(deviceElement);
+            device.send();
+            response = Tools.createDocument(ACTION_OK);
+
+        } else if (ACTION_UPDATE.equalsIgnoreCase(actionType)) {
+            NodeList nodeList = request.getElementsByTagName(DeviceMidi.ROOT);
+            Element deviceElement = (Element) nodeList.item(0);
+
+            device.update(deviceElement);
+            response = Tools.createDocument(ACTION_OK);
 
         } else if (ACTION_CLOSE.equalsIgnoreCase(actionType)) {
             status = StatusType.CLOSE;

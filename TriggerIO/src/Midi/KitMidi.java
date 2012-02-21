@@ -9,8 +9,10 @@ import Base.Kit;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import javax.sound.midi.InvalidMidiDataException;
+import javax.sound.midi.Receiver;
 import javax.sound.midi.SysexMessage;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 /**
  *
@@ -69,6 +71,37 @@ public class KitMidi extends Kit {
             Common.logger.log(Level.SEVERE, "Failed Validation Check <{0}>", Common.printMessage(data));
             throw new UserException("Kit validation failed");
         }
+    }
+
+    //---------------------------------------------------------------------
+    public void send(Receiver receiver) throws InvalidMidiDataException {
+        receiver.send(getSysexMessage(), -1);
+    }
+
+    //----------------------------------------------
+    public void set(Element element, Receiver receiver) throws InvalidMidiDataException{
+        super.set(element);
+        send(receiver);
+    }
+
+    //----------------------------------------------
+    public void update(Element element, Receiver receiver) throws InvalidMidiDataException{
+        setProgramChange(Integer.parseInt(element.getAttribute(PPROGRAM)));
+
+        NodeList inputNodes = element.getElementsByTagName(GlobalInputMidi.ROOT);
+        Common.logger.log(Level.FINE, "inputNodes.length <{0}>", inputNodes.getLength());
+
+        for (int i = 0; i < inputNodes.getLength(); i++) {
+            Element inputElement = (Element) inputNodes.item(i);
+            int inputNumber = Integer.parseInt(inputElement.getAttribute(GlobalInputMidi.PNUMBER));
+
+            for (Input input : inputs) {
+                if (input.getinputNumber() == inputNumber){
+                    input.set(inputElement);
+                }
+            }
+        }
+        send(receiver);
     }
 
     //----------------------------------------------

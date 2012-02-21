@@ -26,15 +26,15 @@ public abstract class DeviceAbstract <T extends Kit, U extends GlobalInput>{
     }
 
     //---------------------------------------------------------------------
-    public Element getDevice(Document doc) {
+    public Element get(Document doc) {
         Element element = doc.createElement(ROOT);
 
         for (T kit : kits) {
-            element.appendChild(kit.getKit(doc));
+            element.appendChild(kit.get(doc));
         }
 
         for (U input : this.globalInputs) {
-            element.appendChild(input.getInput(doc));
+            element.appendChild(input.get(doc));
         }
 
         return element;
@@ -42,6 +42,18 @@ public abstract class DeviceAbstract <T extends Kit, U extends GlobalInput>{
 
     abstract protected void addKit(Element element, int i);
     abstract protected void addGlobalInput(Element element, int i);
+
+    //---------------------------------------------------------------------
+    public Element get(Document doc, int kitNumber, int inputNumber){
+        Element element = doc.createElement(ROOT);
+
+        for (T kit : kits) {
+            if (kit.getKitNumber() == kitNumber){
+                element.appendChild(kit.get(doc, inputNumber));
+            }
+        }
+        return element;
+    }
 
     //---------------------------------------------------------------------
     public T getKit(int kitNumber){
@@ -56,11 +68,11 @@ public abstract class DeviceAbstract <T extends Kit, U extends GlobalInput>{
     }
 
     //---------------------------------------------------------------------
-    public U getGlobalInput(int inputNumber){
+    public U getGlobalInput(int globalInputNumber){
         U foundGlobalInput = null;
 
         for (U globalInput : globalInputs){
-            if(globalInput.getTriggerInputNumber() == inputNumber){
+            if(globalInput.getTriggerInputNumber() == globalInputNumber){
                 foundGlobalInput = globalInput;
             }
         }
@@ -68,7 +80,7 @@ public abstract class DeviceAbstract <T extends Kit, U extends GlobalInput>{
     }
 
     //---------------------------------------------------------------------
-    public void setDevice (Element element) {
+    public void set (Element element) {
         Common.logger.fine("begin");
 
         this.kits.clear();
@@ -76,7 +88,7 @@ public abstract class DeviceAbstract <T extends Kit, U extends GlobalInput>{
 
         // kits
         {
-            NodeList nodes = element.getElementsByTagName(Kit.ROOT);
+            NodeList nodes = element.getElementsByTagName(T.ROOT);
             Common.logger.log(Level.FINE, "kitNodes.length<{0}>", nodes.getLength());
 
             for (int i = 0; i < nodes.getLength(); i++) {
@@ -91,7 +103,7 @@ public abstract class DeviceAbstract <T extends Kit, U extends GlobalInput>{
 
         // global inputs
         {
-            NodeList nodes = element.getElementsByTagName(GlobalInput.ROOT);
+            NodeList nodes = element.getElementsByTagName(U.ROOT);
             Common.logger.log(Level.FINE, "globalInputNodes.length<{0}>", nodes.getLength());
 
             for (int i = 0; i < nodes.getLength(); i++) {

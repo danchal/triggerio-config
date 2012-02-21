@@ -47,7 +47,7 @@ public class Input {
 
     //---------------------------------------------------------------------
     public Input(Element element) {
-        setInput(element);
+        set(element);
     }
 
     //---------------------------------------------------------------------
@@ -88,9 +88,8 @@ public class Input {
         element.setAttribute(PNOTE, String.valueOf(note));
     }
 
-
     //---------------------------------------------------------------------
-    public final void setInput(Element element) {
+    public final void set(Element element) {
         setinputNumber(Integer.parseInt(element.getAttribute(PNUMBER)));
         setChannel(Integer.parseInt(element.getAttribute(PCHANNEL)));
         setNote(Integer.parseInt(element.getAttribute(PNOTE)));

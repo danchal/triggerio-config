@@ -7,6 +7,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.sound.midi.InvalidMidiDataException;
+import javax.sound.midi.MidiUnavailableException;
 import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.Document;
 
@@ -35,19 +38,20 @@ public class Connection implements Runnable{
 
             try {
                 while (!closeThread){
-                    Document inputDoc;
+                    Document request;
 
                     Common.logger.log(Level.INFO, "waiting for request");
 
-                    inputDoc = (Document) ois.readObject();
+                    request = (Document) ois.readObject();
 
                     Common.logger.log(Level.INFO, "object received");
+                    Common.logger.log(Level.INFO, "request={0}", Tools.toString(request));
 
-                    Protocol protocol = new Protocol(inputDoc, device);
+                    Protocol protocol = new Protocol(request, device);
 
-                    Common.logger.log(Level.INFO, "response={0}", Tools.toString(protocol.outDocument));
+                    Common.logger.log(Level.INFO, "response={0}", Tools.toString(protocol.response));
 
-                    oos.writeObject(protocol.outDocument);
+                    oos.writeObject(protocol.response);
                     oos.flush();
 
                     Common.logger.log(Level.INFO, "response sent");
@@ -62,6 +66,10 @@ public class Connection implements Runnable{
                             break;
                     }
                 }
+            } catch (InvalidMidiDataException ex) {
+                Logger.getLogger(Connection.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (MidiUnavailableException ex) {
+                Logger.getLogger(Connection.class.getName()).log(Level.SEVERE, null, ex);
             }catch (ParserConfigurationException ex) {
                 Common.logger.log(Level.SEVERE, null, ex);
             } catch (ClassNotFoundException ex) {

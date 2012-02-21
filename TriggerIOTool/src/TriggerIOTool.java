@@ -44,6 +44,7 @@ public class TriggerIOTool extends JFrame {
 
     //-----------------------------------------------------------
     public TriggerIOTool(boolean debug) {
+        this.debug = debug;
         initDevice();
         initLov();
         initLabels();
@@ -67,7 +68,7 @@ public class TriggerIOTool extends JFrame {
         Common.logger.log(Level.FINE, "bundleVersion.getString(File.xml) <{0}>", bundleVersion.getString("File.xml"));
         Common.logger.log(Level.FINE, "bundleVersion.getString(File.sysex) <{0}>", bundleVersion.getString("File.sysex"));
 
-        if (debug) {
+        if (this.debug) {
             currentFile = new File("default.syx");
             openFile();
         }
@@ -344,7 +345,9 @@ public class TriggerIOTool extends JFrame {
         menuBarMain.add(menuFile);
         menuBarMain.add(menuDevice);
         menuBarMain.add(menuDownload);
-        //menuBarMain.add(menuServer);
+
+        if (debug) menuBarMain.add(menuServer);
+
         menuBarMain.add(menuHelp);
         this.setJMenuBar(menuBarMain);
     }
@@ -1023,7 +1026,7 @@ public class TriggerIOTool extends JFrame {
     private void updateDrumKit(int kitNumber) {
         if (triggerIODevice.isOpen()) {
             try {
-                triggerIODevice.sendtKit(kitNumber);
+                triggerIODevice.sendKit(kitNumber);
             } catch (MidiUnavailableException ex) {
                 Common.logger.severe(ex.getLocalizedMessage());
             } catch (InvalidMidiDataException ex) {
@@ -1226,4 +1229,5 @@ public class TriggerIOTool extends JFrame {
     TransferOptionsDialog transferOptionsDialog;
     int serverPort = 4444;
     Thread serverThread = new Thread();
+    boolean debug = false;
 }

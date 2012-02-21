@@ -63,11 +63,11 @@ public class GlobalInput {
     }
 
     public GlobalInput(Element element) {
-        setInput(element);
+        set(element);
     }
 
     //---------------------------------------------------------------------
-    public Element getInput(Document doc) {
+    public Element get(Document doc) {
         Element element = doc.createElement(ROOT);
 
         element.setAttribute(PNUMBER, String.valueOf(number));
@@ -83,7 +83,7 @@ public class GlobalInput {
         return element;
     }
 
-    public final void setInput(Element element) {
+    public final void set(Element element) {
         setInputNumber(Integer.parseInt(element.getAttribute(PNUMBER)));
         setInputName(element.getAttribute(PNAME));
 

@@ -19,6 +19,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
@@ -73,29 +74,17 @@ public class DeviceMidi extends DeviceAbstract<KitMidi, GlobalInputMidi>  {
     }
 
     //---------------------------------------------------------------------
-    public void sendtKit(int kitNumber) throws MidiUnavailableException, InvalidMidiDataException {
+    public void sendKit(int kitNumber) throws MidiUnavailableException, InvalidMidiDataException {
         Receiver receiver = midiDevice.getReceiver();
-        sendtKit(getKit(kitNumber), receiver);
+        getKit(kitNumber).send(receiver);
         receiver.close();
-    }
-
-    //---------------------------------------------------------------------
-    public void sendtKit(KitMidi kit, Receiver receiver) throws InvalidMidiDataException {
-        Common.logger.log(Level.FINE, "Sending kitNumber=<{0}>", kit.getKitNumber());
-        receiver.send(kit.getSysexMessage(), -1);
     }
 
     //---------------------------------------------------------------------
     public void sendTriggerInput(int inputNumber) throws MidiUnavailableException, InvalidMidiDataException {
         Receiver receiver = midiDevice.getReceiver();
-        sendTriggerInput(getGlobalInput(inputNumber), receiver);
+        getGlobalInput(inputNumber).send(receiver);
         receiver.close();
-    }
-
-    //---------------------------------------------------------------------
-    public void sendTriggerInput(GlobalInputMidi globalInput, Receiver receiver) throws InvalidMidiDataException {
-        Common.logger.log(Level.FINE, "Sending inputNumber=<{0}>", globalInput.getTriggerInputNumber());
-        receiver.send(globalInput.getSysexMessage(), -1);
     }
 
     //---------------------------------------------------------------------
@@ -104,15 +93,35 @@ public class DeviceMidi extends DeviceAbstract<KitMidi, GlobalInputMidi>  {
         Receiver receiver = midiDevice.getReceiver();
 
         for (KitMidi kit : kits){
-            sendtKit(kit, receiver);
+            kit.send(receiver);
         }
 
         for (GlobalInputMidi globalInput : globalInputs){
-            sendTriggerInput(globalInput, receiver);
+            globalInput.send(receiver);
         }
 
         receiver.close();
         Common.logger.fine("end");
+    }
+
+    //---------------------------------------------------------------------
+    public void update (Element element) throws MidiUnavailableException, InvalidMidiDataException {
+        NodeList inputNodes = element.getElementsByTagName(KitMidi.ROOT);
+        Common.logger.log(Level.FINE, "inputNodes.length <{0}>", inputNodes.getLength());
+
+        Receiver receiver = midiDevice.getReceiver();
+
+        for (int i = 0; i < inputNodes.getLength(); i++) {
+            Element kitElement = (Element) inputNodes.item(i);
+            int kitNumber = Integer.parseInt(kitElement.getAttribute(KitMidi.PNUMBER));
+
+            for (KitMidi kit : kits){
+                if (kit.getKitNumber() == kitNumber){
+                    kit.update(kitElement, receiver);
+                }
+            }
+        }
+        receiver.close();
     }
 
     //---------------------------------------------------------------------
@@ -124,7 +133,7 @@ public class DeviceMidi extends DeviceAbstract<KitMidi, GlobalInputMidi>  {
 
         Document doc = docBuilder.newDocument();
 
-        doc.appendChild(getDevice(doc));
+        doc.appendChild(get(doc));
 
         // write the content into xml file
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -145,7 +154,7 @@ public class DeviceMidi extends DeviceAbstract<KitMidi, GlobalInputMidi>  {
             Common.logger.fine("before parse");
             Document doc = db.parse(file);
 
-            setDevice(doc.getDocumentElement());
+            set(doc.getDocumentElement());
 
         } catch (SAXException ex) {
             Common.logger.severe("Not a valid xml file");
