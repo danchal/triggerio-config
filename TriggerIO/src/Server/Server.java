@@ -23,10 +23,12 @@ public class Server implements Runnable {
     private int serverPort;
     private ServerSocket serverSocket = null;
     private DeviceMidi device;
+    private ThreadMessage refresh;
 
-    public Server(int inServerPort, DeviceMidi device) {
+    public Server(int inServerPort, DeviceMidi device, ThreadMessage refresh) {
         this.serverPort = inServerPort;
         this.device = device;
+        this.refresh = refresh;
     }
 
     @Override
@@ -37,39 +39,48 @@ public class Server implements Runnable {
             serverSocket = new ServerSocket(serverPort);
             serverSocket.setSoTimeout(1000);
 
+            while (true) {
 
-            Common.logger.log(Level.INFO, "Waiting for connections.");
-            Socket clientSocket = null;
+                Common.logger.log(Level.INFO, "Waiting for New connection.");
+                Socket clientSocket = null;
 
-            boolean loop = true;
+                {
+                    boolean loop = true;
+                    while (loop) {
+                        try {
 
-            while (loop){
-                try {
+                            clientSocket = serverSocket.accept();
+                            loop = false;
 
-                    clientSocket = serverSocket.accept();
-                    loop = false;
-
-                } catch (SocketTimeoutException ex){
-                    if (Thread.interrupted()){
-                        Common.logger.log(Level.INFO, "Interrupted whilst waiting for connection");
-                        throw new InterruptedException();
+                        } catch (SocketTimeoutException ex) {
+                            if (Thread.interrupted()) {
+                                Common.logger.log(Level.INFO, "Interrupted whilst waiting for connection");
+                                throw new InterruptedException("waiting for connection");
+                            }
+                        }
                     }
+                }
+                Common.logger.log(Level.INFO, "Accepted a connection from: {0}", clientSocket.getInetAddress());
+
+                Thread connection = new Thread(new Connection(clientSocket, device, refresh), "connection");
+                connection.start();
+                {
+                    while (connection.isAlive()) {
+                        try {
+                            connection.join(1000);
+                        } catch (InterruptedException ex) {
+                            Common.logger.log(Level.INFO, "Interrupted whilst connection active");
+                            Tools.stopThread(connection);
+                            throw new InterruptedException("connection active");
+                        }
+                    }
+                    Common.logger.log(Level.INFO, "Connection Closed");
                 }
             }
 
-            Common.logger.log(Level.INFO, "Accepted a connection from: {0}", clientSocket.getInetAddress());
-
-            Thread connection = new Thread(new Connection(clientSocket, device));
-
-            connection.start();
-
-            connection.join();
-
-            closeServer();
-
-        }catch (IOException ex) {
+        } catch (IOException ex) {
             Common.logger.log(Level.SEVERE, "Could not listen on port: {0}", serverPort);
-        } catch (InterruptedException ex){
+        } catch (InterruptedException ex) {
             closeServer();
         }
         Common.logger.log(Level.INFO, "Server closed <{0}>", serverSocket.isClosed());
@@ -89,9 +100,5 @@ public class Server implements Runnable {
 
     public int getServerPort() {
         return serverPort;
-    }
-
-    public boolean isServerRunning() {
-        return serverSocket.isBound();
     }
 }

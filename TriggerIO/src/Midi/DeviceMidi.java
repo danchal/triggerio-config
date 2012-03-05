@@ -5,6 +5,7 @@
 package Midi;
 
 import Base.DeviceAbstract;
+import Base.UserException;
 import java.io.*;
 import java.util.logging.Level;
 import javax.sound.midi.*;
@@ -106,18 +107,36 @@ public class DeviceMidi extends DeviceAbstract<KitMidi, GlobalInputMidi>  {
 
     //---------------------------------------------------------------------
     public void update (Element element) throws MidiUnavailableException, InvalidMidiDataException {
-        NodeList inputNodes = element.getElementsByTagName(KitMidi.ROOT);
-        Common.logger.log(Level.FINE, "inputNodes.length <{0}>", inputNodes.getLength());
-
         Receiver receiver = midiDevice.getReceiver();
 
-        for (int i = 0; i < inputNodes.getLength(); i++) {
-            Element kitElement = (Element) inputNodes.item(i);
-            int kitNumber = Integer.parseInt(kitElement.getAttribute(KitMidi.PNUMBER));
+        {
+            NodeList nodes = element.getElementsByTagName(KitMidi.ROOT);
+            Common.logger.log(Level.FINE, "Kit nodes<{0}>", nodes.getLength());
 
-            for (KitMidi kit : kits){
-                if (kit.getKitNumber() == kitNumber){
-                    kit.update(kitElement, receiver);
+            for (int i = 0; i < nodes.getLength(); i++) {
+                Element kitElement = (Element) nodes.item(i);
+                int kitNumber = Integer.parseInt(kitElement.getAttribute(KitMidi.PNUMBER));
+
+                for (KitMidi kit : kits) {
+                    if (kit.getKitNumber() == kitNumber) {
+                        kit.update(kitElement, receiver);
+                    }
+                }
+            }
+        }
+
+        {
+            NodeList nodes = element.getElementsByTagName(GlobalInputMidi.ROOT);
+            Common.logger.log(Level.FINE, "GlobalInput nodes<{0}>", nodes.getLength());
+
+            for (int i = 0; i < nodes.getLength(); i++) {
+                Element inputElement = (Element) nodes.item(i);
+                int globalInputNumber = Integer.parseInt(inputElement.getAttribute(GlobalInputMidi.PNUMBER));
+
+                for (GlobalInputMidi globalInput : globalInputs) {
+                    if (globalInput.getNumber() == globalInputNumber) {
+                        globalInput.set(inputElement, receiver);
+                    }
                 }
             }
         }
@@ -222,9 +241,9 @@ public class DeviceMidi extends DeviceAbstract<KitMidi, GlobalInputMidi>  {
         globalInputs.clear();
 
         // build inputs
-        for (int inputNumber = 0; inputNumber < DeviceMidi.COUNTINPUT; inputNumber++) {
-            Common.logger.log(Level.FINER, "inputNumber<{0}>, Status<{1}>", new Object[]{inputNumber, Common.unsignedByteToInt(inputStream.readByte())}); //0xF0
-            globalInputs.add(inputNumber, new GlobalInputMidi(readStream(inputStream, GlobalInputMidi.INPUTMESSAGELENGTH)));
+        for (int globalInputNumber = 0; globalInputNumber < DeviceMidi.COUNTINPUT; globalInputNumber++) {
+            Common.logger.log(Level.FINER, "globalInputNumber<{0}>, Status<{1}>", new Object[]{globalInputNumber, Common.unsignedByteToInt(inputStream.readByte())}); //0xF0
+            globalInputs.add(globalInputNumber, new GlobalInputMidi(readStream(inputStream, GlobalInputMidi.INPUTMESSAGELENGTH)));
         }
 
         inputStream.close();

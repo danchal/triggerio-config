@@ -48,12 +48,12 @@ public class GlobalInput {
     }
 
     //----------------------------------------------
-    public GlobalInput(int inputNumber, String inputName,
+    public GlobalInput(int number, String name,
             int gain, int velocityCurve, int threshold,
             int xTalk, int retrigger, int triggerType) {
 
-        setInputNumber(inputNumber);
-        setInputName(inputName);
+        setNumber(number);
+        setName(name);
         setGain(gain);
         setVelocityCurve(velocityCurve);
         setThreshold(threshold);
@@ -84,8 +84,8 @@ public class GlobalInput {
     }
 
     public final void set(Element element) {
-        setInputNumber(Integer.parseInt(element.getAttribute(PNUMBER)));
-        setInputName(element.getAttribute(PNAME));
+        setNumber(Integer.parseInt(element.getAttribute(PNUMBER)));
+        setName(element.getAttribute(PNAME));
 
         setGain(Integer.parseInt(element.getAttribute(PGAIN)));
         setVelocityCurve(Integer.parseInt(element.getAttribute(PVELOCITY)));
@@ -95,17 +95,13 @@ public class GlobalInput {
         setTriggerType(Integer.parseInt(element.getAttribute(TYPE)));
     }
 
-    public String getInputName(int inputNumber) {
-        return name;
-    }
-
     //----------------------------------------------
-    public String getTriggerInputName() {
+    public String getName() {
         return this.name;
     }
 
     //----------------------------------------------
-    public int getTriggerInputNumber() {
+    public int getNumber() {
         return this.number;
     }
 
@@ -140,13 +136,13 @@ public class GlobalInput {
     }
 
     //----------------------------------------------
-    protected final void setInputNumber(int triggerInputNumber) {
+    protected final void setNumber(int triggerInputNumber) {
         this.number = triggerInputNumber;
         Common.logger.log(Level.FINEST, "triggerInputNumber = <{0}>", this.number);
     }
 
     //----------------------------------------------
-    public final void setInputName(String triggerInputName) {
+    public final void setName(String triggerInputName) {
         this.name = triggerInputName;
         Common.logger.log(Level.FINEST, "triggerInputName = <{0}>", this.name);
     }

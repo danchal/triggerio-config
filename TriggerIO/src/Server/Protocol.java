@@ -1,10 +1,10 @@
 package Server;
 
+import Base.UserException;
 import Midi.DeviceMidi;
 import java.util.logging.Level;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiUnavailableException;
-import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -14,6 +14,7 @@ public class Protocol {
     public static final String ROOT = "message";
     public static final String ACTION_GET = "get";
     public static final String ACTION_SET = "set";
+    public static final String ACTION_PING = "ping";
     public static final String ACTION_UPDATE = "update";
     public static final String ACTION_OK = "ok";
     public static final String ACTION_CLOSE = "close";
@@ -26,7 +27,7 @@ public class Protocol {
     public StatusType status;
     public Document response;
 
-    public Protocol(Document request, DeviceMidi device) throws ParserConfigurationException, InvalidMidiDataException, MidiUnavailableException {
+    public Protocol(Document request, DeviceMidi device) throws InvalidMidiDataException, MidiUnavailableException, UserException {
         Base.Common.logger.log(Level.INFO, "begin");
 
         String actionType;
@@ -60,6 +61,9 @@ public class Protocol {
             Element deviceElement = (Element) nodeList.item(0);
 
             device.update(deviceElement);
+            response = Tools.createDocument(ACTION_OK);
+
+        } else if (ACTION_PING.equalsIgnoreCase(actionType)) {
             response = Tools.createDocument(ACTION_OK);
 
         } else if (ACTION_CLOSE.equalsIgnoreCase(actionType)) {

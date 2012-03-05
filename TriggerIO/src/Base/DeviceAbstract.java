@@ -56,6 +56,18 @@ public abstract class DeviceAbstract <T extends Kit, U extends GlobalInput>{
     }
 
     //---------------------------------------------------------------------
+    public Element get(Document doc, int globalInputNumber){
+        Element element = doc.createElement(ROOT);
+
+         for (U globalInput : globalInputs){
+            if(globalInput.getNumber() == globalInputNumber){
+                element.appendChild(globalInput.get(doc));
+            }
+        }
+        return element;
+    }
+
+    //---------------------------------------------------------------------
     public T getKit(int kitNumber){
         T foundKit = null;
 
@@ -68,11 +80,35 @@ public abstract class DeviceAbstract <T extends Kit, U extends GlobalInput>{
     }
 
     //---------------------------------------------------------------------
+    public boolean kitExists(int kitNumber){
+        boolean exists = false;
+
+        for (T kit : kits){
+            if (kit.getKitNumber() == kitNumber){
+                exists = true;
+            }
+        }
+        return exists;
+    }
+
+    //---------------------------------------------------------------------
+    public boolean globalInputExists(int globalInputNumber){
+        boolean exists = false;
+
+            for (U globalInput : globalInputs){
+            if(globalInput.getNumber() == globalInputNumber){
+                exists = true;
+            }
+        }
+        return exists;
+    }
+
+    //---------------------------------------------------------------------
     public U getGlobalInput(int globalInputNumber){
         U foundGlobalInput = null;
 
         for (U globalInput : globalInputs){
-            if(globalInput.getTriggerInputNumber() == globalInputNumber){
+            if(globalInput.getNumber() == globalInputNumber){
                 foundGlobalInput = globalInput;
             }
         }

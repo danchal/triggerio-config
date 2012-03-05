@@ -5,6 +5,7 @@
 package Midi;
 
 import Base.GlobalInput;
+import Base.UserException;
 import java.util.logging.Level;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.Receiver;
@@ -48,8 +49,8 @@ public class GlobalInputMidi extends GlobalInput {
             Common.logger.finer("validated OK");
 
             int inputNumber = Common.unsignedByteToInt(data[INPUTNUMBERPOSITION]);
-            setInputNumber(inputNumber);
-            setInputName("Input-" + String.valueOf((inputNumber / 2) + 1) + (inputNumber % 2 == 0 ? "T" : "R"));
+            setNumber(inputNumber);
+            setName("Input-" + String.valueOf((inputNumber / 2) + 1) + (inputNumber % 2 == 0 ? "T" : "R"));
 
             setGain(Common.unsignedByteToInt(data[10]));
             setVelocityCurve(Common.unsignedByteToInt(data[11]));
@@ -108,7 +109,7 @@ public class GlobalInputMidi extends GlobalInput {
         intMidiMessage[6] = HEADER[6];
         intMidiMessage[7] = HEADER[7];
         intMidiMessage[8] = HEADER[8];
-        intMidiMessage[9] = this.getTriggerInputNumber();
+        intMidiMessage[9] = this.getNumber();
         intMidiMessage[10] = this.getGain();
         intMidiMessage[11] = this.getVelocityCurve();
         intMidiMessage[12] = this.getThreshold();

@@ -6,6 +6,7 @@ package Midi;
 
 import Base.Input;
 import Base.Kit;
+import Base.UserException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import javax.sound.midi.InvalidMidiDataException;
@@ -88,12 +89,12 @@ public class KitMidi extends Kit {
     public void update(Element element, Receiver receiver) throws InvalidMidiDataException{
         setProgramChange(Integer.parseInt(element.getAttribute(PPROGRAM)));
 
-        NodeList inputNodes = element.getElementsByTagName(GlobalInputMidi.ROOT);
-        Common.logger.log(Level.FINE, "inputNodes.length <{0}>", inputNodes.getLength());
+        NodeList inputNodes = element.getElementsByTagName(Input.ROOT);
+        Common.logger.log(Level.FINE, "TriggerInput nodes <{0}>", inputNodes.getLength());
 
         for (int i = 0; i < inputNodes.getLength(); i++) {
             Element inputElement = (Element) inputNodes.item(i);
-            int inputNumber = Integer.parseInt(inputElement.getAttribute(GlobalInputMidi.PNUMBER));
+            int inputNumber = Integer.parseInt(inputElement.getAttribute(Input.PNUMBER));
 
             for (Input input : inputs) {
                 if (input.getinputNumber() == inputNumber){

@@ -1,11 +1,10 @@
 
+import Base.UserException;
 import Midi.DeviceMidi;
-import Server.Tools;
 import Server.Protocol;
+import Server.Tools;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -59,7 +58,7 @@ public class TestMessage {
 
             }
 
-        } catch (ParserConfigurationException ex) {
+        } catch (UserException ex) {
             Logger.getLogger(TestMessage.class.getName()).log(Level.SEVERE, null, ex);
         }
     }

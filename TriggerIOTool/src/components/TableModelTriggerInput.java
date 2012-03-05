@@ -97,14 +97,14 @@ public class TableModelTriggerInput extends AbstractTableModel{
                         + ">" + ", gain = <{2}" + ">"
                         + ", velo = <{3}" + ">" + ", threshold = <{4}"
                         + ">" + ", xtalk = <{5}" + ">"
-                        + ", retrigger = <{6}" + ">" + ", trigger type = <{7}>", new Object[]{triggerInput.getTriggerInputNumber(), triggerInput.getTriggerInputName(), triggerInput.getGain(), triggerInput.getVelocityCurve(), triggerInput.getThreshold(), triggerInput.getXTalk(), triggerInput.getRetrigger(), triggerInput.getTriggerType()});
-            data[triggerInput.getTriggerInputNumber()][0] = triggerInput.getTriggerInputName();
-            data[triggerInput.getTriggerInputNumber()][1] = GlobalInputMidi.lovGain.get(triggerInput.getGain());
-            data[triggerInput.getTriggerInputNumber()][2] = GlobalInputMidi.lovVelocity.get(triggerInput.getVelocityCurve());
-            data[triggerInput.getTriggerInputNumber()][3] = GlobalInputMidi.lovThreshold.get(triggerInput.getThreshold());
-            data[triggerInput.getTriggerInputNumber()][4] = GlobalInputMidi.lovXTalk.get(triggerInput.getXTalk());
-            data[triggerInput.getTriggerInputNumber()][5] = GlobalInputMidi.lovRetrigger.get(triggerInput.getRetrigger());
-            data[triggerInput.getTriggerInputNumber()][6] = GlobalInputMidi.lovType.get(triggerInput.getTriggerType());
+                        + ", retrigger = <{6}" + ">" + ", trigger type = <{7}>", new Object[]{triggerInput.getNumber(), triggerInput.getName(), triggerInput.getGain(), triggerInput.getVelocityCurve(), triggerInput.getThreshold(), triggerInput.getXTalk(), triggerInput.getRetrigger(), triggerInput.getTriggerType()});
+            data[triggerInput.getNumber()][0] = triggerInput.getName();
+            data[triggerInput.getNumber()][1] = GlobalInputMidi.lovGain.get(triggerInput.getGain());
+            data[triggerInput.getNumber()][2] = GlobalInputMidi.lovVelocity.get(triggerInput.getVelocityCurve());
+            data[triggerInput.getNumber()][3] = GlobalInputMidi.lovThreshold.get(triggerInput.getThreshold());
+            data[triggerInput.getNumber()][4] = GlobalInputMidi.lovXTalk.get(triggerInput.getXTalk());
+            data[triggerInput.getNumber()][5] = GlobalInputMidi.lovRetrigger.get(triggerInput.getRetrigger());
+            data[triggerInput.getNumber()][6] = GlobalInputMidi.lovType.get(triggerInput.getTriggerType());
         }
     }
 }

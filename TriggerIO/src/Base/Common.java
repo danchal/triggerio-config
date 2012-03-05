@@ -18,8 +18,7 @@ public class Common {
 
     public static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Common.class.getName());
 
-    //---------------------------------------------------------------------
-    static {
+    public static void enableLog(boolean enable){
         try {
             Handler handler = new FileHandler("TriggerIO.log");
             handler.setFormatter(new LogFormat());

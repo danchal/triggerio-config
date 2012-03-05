@@ -2,6 +2,8 @@
 import Base.Input;
 import Midi.*;
 import Server.Server;
+import Server.ThreadMessage;
+import Server.Tools;
 import components.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -9,7 +11,6 @@ import java.io.File;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.sound.midi.*;
 import javax.swing.*;
 import javax.swing.event.MenuEvent;
@@ -32,6 +33,8 @@ public class TriggerIOTool extends JFrame {
     //-----------------------------------------------------------
     public static void main(String[] args) {
         boolean debug = false;
+
+        Common.enableLog(true);
 
         if (args.length != 0) {
             if (args[0].equalsIgnoreCase("debug")) {
@@ -72,6 +75,16 @@ public class TriggerIOTool extends JFrame {
             currentFile = new File("default.syx");
             openFile();
         }
+
+        serverRefresh = new Timer(500, new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+                if (refresh.getRefresh()){
+                    loadTables();
+                    refresh.setRefresh(false);
+                }
+            }
+        });
     }
 
     //-----------------------------------------------------------
@@ -346,7 +359,9 @@ public class TriggerIOTool extends JFrame {
         menuBarMain.add(menuDevice);
         menuBarMain.add(menuDownload);
 
-        if (debug) menuBarMain.add(menuServer);
+        if (debug) {
+            menuBarMain.add(menuServer);
+        }
 
         menuBarMain.add(menuHelp);
         this.setJMenuBar(menuBarMain);
@@ -447,23 +462,24 @@ public class TriggerIOTool extends JFrame {
         if (returnStatus == StartServerDialog.RET_OK) {
             serverPort = dialog.getServerPort();
 
-            serverThread = new Thread(new Server(serverPort, triggerIODevice));
+            serverThread = new Thread(new Server(serverPort, triggerIODevice, refresh), "server");
             serverThread.start();
+
+            serverRefresh.start();
 
             Common.logger.log(Level.INFO, "Server started on serverPort =<{0}>", serverPort);
         }
     }
 
+    // ----------------------------------------------------------------
+    private void stopServer() {
+        Tools.stopThread(serverThread);
+        serverRefresh.stop();
+    }
+
     //-----------------------------------------------------------
     private void actionPerformedMenuItemServerStop(ActionEvent evt) {
-        serverThread.interrupt();
-
-        try {
-            serverThread.join();
-            Common.logger.info("server stopped");
-        } catch (InterruptedException ex) {
-            Logger.getLogger(TriggerIOTool.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        stopServer();
     }
 
     //-----------------------------------------------------------
@@ -922,6 +938,12 @@ public class TriggerIOTool extends JFrame {
         }
     }
 
+    private void exit(){
+        stopServer();
+        this.dispose();
+        System.exit(0);
+    }
+
     //-----------------------------------------------------------
     private void exitApp() {
         if (fileChanged) {
@@ -931,19 +953,19 @@ public class TriggerIOTool extends JFrame {
                 case JOptionPane.YES_OPTION:
                     saveCurrentFile();
                     if (!fileChanged) {
-                        this.dispose();
+                        exit();
                     }
                     break;
 
                 case JOptionPane.NO_OPTION:
-                    this.dispose();
+                    exit();
                     break;
 
                 case JOptionPane.CANCEL_OPTION:
                     break;
             }
         } else {
-            this.dispose();
+            exit();
         }
     }
 
@@ -960,8 +982,8 @@ public class TriggerIOTool extends JFrame {
         tableModelTriggerInput.load(triggerIODevice.globalInputs);
 
         for (GlobalInputMidi triggerInput : triggerIODevice.globalInputs) {
-            tableMidiChannel.setValueAt(triggerInput.getTriggerInputName(), triggerInput.getTriggerInputNumber(), 0);
-            tableMidiNote.setValueAt(triggerInput.getTriggerInputName(), triggerInput.getTriggerInputNumber(), 0);
+            tableMidiChannel.setValueAt(triggerInput.getName(), triggerInput.getNumber(), 0);
+            tableMidiNote.setValueAt(triggerInput.getName(), triggerInput.getNumber(), 0);
         }
 
         this.repaint();
@@ -1229,5 +1251,7 @@ public class TriggerIOTool extends JFrame {
     TransferOptionsDialog transferOptionsDialog;
     int serverPort = 4444;
     Thread serverThread = new Thread();
+    Timer serverRefresh;
+    ThreadMessage refresh = new ThreadMessage(false);
     boolean debug = false;
 }
