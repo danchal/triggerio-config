@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="hello">Hello World, TriggerIOClientActivity!</string>
+    <string name="app_name">TriggerIOClient</string>
+    <string name="connectButton">Connect</string>
+    <string name="alert_dialog_server_address">Server address</string>
+    <string name="alert_dialog_server_port">Server port</string>
+    <string name="alert_dialog_text_entry">Connection details</string>
+    <string name="alert_dialog_connect">Connect</string>
+    <string name="alert_dialog_cancel">Cancel</string>
+    <string name="ok">Ok</string>
+    <string name="reset">Reset</string>
+    <string name="cancel">Cancel</string>
+    <string name="program_change_title">Program</string>
+    <string name="midi_channel_title">Channel</string>
+    <string name="midi_note_title">Note</string>
+    <string name="gain_title">Gain</string>
+    <string name="velocity_curve_title">Velocity</string>
+    <string name="threshold_title">Threshold</string>
+    <string name="xtalk_title">XTalk</string>
+    <string name="retrigger_title">Retrigger</string>
+    <string name="trigger_type_title">Type</string>
+    <string name="minus_button">-</string>
+    <string name="plus_button">+</string>
+    <string name="kit_title">Kit</string>
+    <string name="input_title">Input</string>
+    <string name="message_failed">Failed to send the message</string>
+    <string name="serverAddress">serverAddress</string>
+    <string name="serverPort">serverPort</string>
+    <string name="currentKit">currentKit</string>
+    <string name="currentInput">currentInput</string>
+
+</resources>
